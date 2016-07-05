@@ -1,0 +1,7 @@
+﻿How to run the unit tests
+Install Nunit
+then adjust path variable
+set PATH=%PATH%;C:\Program Files (x86)\NUnit.org\nunit-console
+and then cd to the directory of the project dotnetplsqltests
+and then on the commandline
+nunit3-console bin\Debug\dotnetplsqltests.exe
