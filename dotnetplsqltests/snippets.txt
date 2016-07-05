@@ -1,0 +1,231 @@
+## p1_spec
+create or replace package p1 as
+-- test package for javaplsql
+procedure p(xi number,yi varchar2,zi date,xo out number,yo out varchar2,zo out date);
+
+type r1 is record (x number, y varchar2(200), z date);
+
+
+procedure p2(a r1, b out r1);
+
+type t1 is table of r1;
+
+procedure p3(a t1, b out t1);
+
+type t2 is table of t1;
+
+procedure p4(a in out t2);
+
+type t3 is table of varchar2(32767);
+
+procedure p5(a in t3,b out t3);
+
+procedure p6;
+
+function f7(a integer,b varchar2,c date) return r1;
+
+procedure p7(x dual%rowtype);
+
+procedure p8(x boolean,y out boolean);
+
+procedure p9(x1 pls_integer,y1 out pls_integer,x2 natural,y2 out natural);
+
+procedure raise_error(errnum integer,txt varchar2);
+
+procedure no_args;
+
+procedure pcursor1 (n number,v varchar2,d date,c out sys_refcursor);
+
+type refcursor_rec is record (n number,v varchar2(200),d date);
+
+TYPE return_cur IS REF CURSOR RETURN refcursor_rec;
+
+procedure pcursor2(n number,v varchar2,d date,c out return_cur);
+
+type return_cur2 is ref cursor return all_tables%rowtype;
+
+procedure pcursor3(c out return_cur2);
+
+type tabv is table of varchar2(200) index by varchar2(200);
+type tabi is table of varchar2(200) index by binary_integer;
+
+procedure pindex_tab(ai tabv,bi tabi,ao out tabv,bo out tabi);
+
+type tabvv is table of tabv index by varchar2(200);
+
+procedure pindex_tab2(x in out tabvv);
+
+procedure praw(x in raw,y out raw);
+
+
+end;
+## p1_body
+create or replace package body p1 as
+
+procedure p(xi number,yi varchar2,zi date,xo out number,yo out varchar2,zo out date) is
+begin
+  xo := xi+1;
+  yo := yi||yi;
+  zo := zi;
+end;
+
+procedure p2(a r1,b out r1) is
+begin
+b.x := a.x+1;
+b.y := a.y||a.y;
+b.z := trunc(sysdate);
+end;
+
+procedure p3(a t1, b out t1) is
+x r1;
+res t1 := new t1();
+begin
+  for i in a.first .. a.last loop
+    x := a(i);
+    x.x := x.x+1;
+    x.y := x.y||x.y;
+    x.z := trunc(sysdate)+i;
+    res.extend();
+    res(res.last) := x;
+  end loop;
+  b:= res;
+end;
+
+procedure p4(a in out t2) is
+begin
+  null;
+end;
+
+procedure p5(a in t3,b out t3) is
+begin
+  b:= a;
+end;
+
+procedure p6 is
+begin
+  null;
+end;
+
+function f7(a integer,b varchar2,c date) return r1 is
+res r1;
+begin
+ res.x := a;
+ res.y := b;
+ res.z := c;
+ return res;
+end;
+
+procedure p7(x dual%rowtype) is
+begin
+  null;
+end;
+
+
+procedure p8(x boolean,y out boolean) is
+begin
+  y:= not x;
+end;
+
+procedure p9(x1 pls_integer,y1 out pls_integer,x2 natural,y2 out natural) is
+begin
+  y1:= -x1;
+  y2 := x2 + 10;
+end;
+
+procedure raise_error(errnum integer,txt varchar2) is
+begin
+  raise_application_error(errnum,txt);
+end;
+
+procedure no_args is
+begin
+ null;
+end;
+
+procedure pcursor1 (n number,v varchar2,d date,c out sys_refcursor) is
+begin
+  open c for select 'a' as a,1 as b, date '2001-1-5' as c from dual
+                  union all select v,n,d from dual;
+end;
+
+procedure pcursor2(n number,v varchar2,d date,c out return_cur) is
+
+begin
+  open c for select 1 as n,'a' as v, date '2001-1-5' as d from dual
+                  union all select n,v,d from dual;
+end;
+
+procedure pcursor3(c out return_cur2) is
+begin
+  open c for select * from all_tables where rownum <100;
+end;
+
+
+procedure pindex_tab(ai tabv,bi tabi,ao out tabv,bo out tabi) is
+xa tabv;
+xb tabi;
+v varchar2(200);
+i binary_integer;
+begin
+  v := ai.first;
+  loop
+    exit when v is null;
+    xa('x'||v) := ai(v)||'y';
+    v := ai.next(v);
+  end loop;
+  i := bi.first;
+  loop
+    exit when i is null;
+    xb(i*2) := bi(i)||'y';
+    i := bi.next(i);
+  end loop;
+  ao := xa;
+  bo := xb;  
+end;
+
+procedure pindex_tab2(x in out tabvv) is
+begin
+  null;
+end;
+
+procedure praw(x in raw,y out raw) is
+begin
+  y:= x;
+end;
+
+end;
+## proc1
+create or replace procedure proc1( x integer,y varchar2,z date) as
+begin
+  null;
+end;
+
+## pack_overload_spec
+create or replace package pack_overload is
+
+procedure p1(x in varchar2,txt out varchar2);
+
+procedure p1(a in number,txt out varchar2);
+
+procedure p1(a in varchar2,txt out varchar2);
+
+end;
+
+## pack_overload_body
+create or replace package body pack_overload is
+procedure p1(x in varchar2,txt out varchar2) is
+begin
+  txt := '1/'||x;
+end;
+
+procedure p1(a in number,txt out varchar2) is
+begin
+  txt := '2/'||a;
+end;
+
+procedure p1(a in varchar2,txt out varchar2) is
+begin
+  txt := '3/'||a;
+end;
+
+end;
