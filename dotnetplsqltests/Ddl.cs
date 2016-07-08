@@ -1,5 +1,5 @@
 using System;
-using Oracle.DataAccess.Client;
+using System.Data.Common;
 namespace spinat.dotnetplsqltests
 {
 
@@ -7,9 +7,9 @@ namespace spinat.dotnetplsqltests
     public class Ddl
     {
 
-        public static void createType(OracleConnection c, String s)
+        public static void createType(DbConnection c, String s)
         {
-            OracleCommand stm = c.CreateCommand();
+            var stm = c.CreateCommand();
 
             var a = s.Split(new String[] { " " }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -31,9 +31,9 @@ namespace spinat.dotnetplsqltests
             stm.ExecuteNonQuery();
         }
 
-        public static void call(OracleConnection con, params String[] s)
+        public static void call(DbConnection con, params String[] s)
         {
-            using (OracleCommand call = con.CreateCommand())
+            using (var call = con.CreateCommand())
             {
                 call.CommandText = String.Join("\n", s);
                 call.ExecuteNonQuery();
@@ -41,7 +41,7 @@ namespace spinat.dotnetplsqltests
             }
         }
 
-        public static void dropSynonyms(OracleConnection con)
+        public static void dropSynonyms(DbConnection con)
         {
             using (var cmd = con.CreateCommand())
             {
@@ -54,7 +54,7 @@ namespace spinat.dotnetplsqltests
             }
         }
 
-        public static void dropGrants(OracleConnection con)
+        public static void dropGrants(DbConnection con)
         {
             using (var cmd = con.CreateCommand())
             {
