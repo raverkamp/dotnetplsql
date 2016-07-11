@@ -431,79 +431,90 @@ namespace spinat.dotnetplsqltests
             }
         }
 
-        /*
-           @Test
-           public void TestIndexBy2() throws SQLException {
-               int n = 10;
-               ProcedureCaller p = new ProcedureCaller(connection);
-               Map<String, Object> args = new HashMap<>();
-               TreeMap<String, Object> tm = new TreeMap<>();
-               args.put("X", tm);
-               for (int i = 0; i < n; i++) {
-                   TreeMap<String, String> h = new TreeMap<>();
-                   for (int j = 0; j < n; j++) {
-                       h.put("" + j + "," + i, "v" + j + "," + i);
-                   }
-                   tm.put("a" + i, h);
-               }
-               Map<String, Object> res = p.call("p1.pindex_tab2", args);
-               TreeMap<String, Object> tm2 = (TreeMap<String, Object>) res.get("X");
-               assertTrue(tm2.size() == tm.size());
-               for (Map.Entry<String, Object> kv : tm.entrySet()) {
-                   TreeMap<String, String> h1 = (TreeMap<String, String>) kv.getValue();
-                   TreeMap<String, String> h2 = (TreeMap<String, String>) tm2.get(kv.getKey());
-                   assertTrue(h1.size() == h2.size());
-                   for (Map.Entry<String, String> kv2 : h1.entrySet()) {
-                       assertTrue(kv2.getValue().equals(h2.get(kv2.getKey())));
-                   }
-               }
-           }
+        [Test]
+        public void TestIndexBy2()
+        {
+            int n = 10;
+            ProcedureCaller p = new ProcedureCaller(connection);
+            var args = new Dictionary<String, Object>();
+            var tm = new SortedDictionary<String, Object>();
+            args["X"] = tm;
+            for (int i = 0; i < n; i++)
+            {
+                var h = new SortedDictionary<String, Object>();
+                for (int j = 0; j < n; j++)
+                {
+                    h["" + j + "," + i] = "v" + j + "," + i;
+                }
+                tm["a" + i] = h;
+            }
+            Dictionary<String, Object> res = p.call("p1.pindex_tab2", args);
+            var tm2 = (SortedDictionary<String, Object>)res["X"];
+            Assert.True(tm2.Count == tm.Count);
+            foreach (String k in tm.Keys)
+            {
 
-           @Test
-           public void testRaw() throws SQLException {
-               ProcedureCaller p = new ProcedureCaller(connection);
-               Map<String, Object> args = new HashMap<>();
-               byte[] b = new byte[]{1, 2, 3, 4, 76, 97};
-               args.put("X", b);
-               Map<String, Object> res = p.call("p1.praw", args);
-               byte[] b2 = (byte[]) res.get("Y");
-               assertTrue(b2.length == b.length);
-               for (int i = 0; i < b2.length; i++) {
-                   assertTrue(b[i] == b2[i]);
-               }
-           }
-    
-           @Test
-           public void testRaw2() throws SQLException {
-               ProcedureCaller p = new ProcedureCaller(connection);
-               Map<String, Object> args = new HashMap<>();
-               byte[] b = new byte[0];
-               args.put("X", b);
-               Map<String, Object> res = p.call("p1.praw", args);
-               byte[] b2 = (byte[]) res.get("Y");
-               assertTrue(b2==null);
-               //
-               args.put("X", null);
-               Map<String, Object> res2 = p.call("p1.praw", args);
-               byte[] b22 = (byte[]) res.get("Y");
-               assertTrue(b22==null);
-           }
-    
-            @Test
-           public void testRawBig() throws SQLException {
-               ProcedureCaller p = new ProcedureCaller(connection);
-               Map<String, Object> args = new HashMap<>();
-               byte[] b = new byte[32767];
-               for(int i=0; i<b.length;i++) {
-                   b[i] = (byte)(i*7&255);
-               }
-               args.put("X", b);
-               Map<String, Object> res = p.call("p1.praw", args);
-               byte[] b2 = (byte[]) res.get("Y");
-               assertTrue(b2.length == b.length);
-               for (int i = 0; i < b2.length; i++) {
-                   assertTrue(b[i] == b2[i]);
-               }
-           }*/
+                var h1 = (SortedDictionary<String, Object>)tm[k];
+                var h2 = (SortedDictionary<String, Object>)tm2[k];
+
+                Assert.True(h1.Count == h2.Count);
+                foreach (String kk in h1.Keys)
+                {
+                    Assert.True(h2[kk].Equals(h1[kk]));
+                }
+            }
+        }
+        [Test]
+        public void testRaw()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            var args = new Dictionary<String, Object>();
+            byte[] b = new byte[] { 1, 2, 3, 4, 76, 97 };
+            args["X"] = b;
+            var res = p.call("p1.praw", args);
+            byte[] b2 = (byte[])res["Y"];
+            Assert.True(b2.Length == b.Length);
+            for (int i = 0; i < b2.Length; i++)
+            {
+                Assert.True(b[i] == b2[i]);
+            }
+        }
+        [Test]
+        public void testRaw2()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            var args = new Dictionary<String, Object>();
+            byte[] b = new byte[0];
+            args["X"] = b;
+            var res = p.call("p1.praw", args);
+            byte[] b2 = (byte[])res["Y"];
+            Assert.True(b2 == null);
+            //
+            args["X"] = null;
+            var res2 = p.call("p1.praw", args);
+            byte[] b22 = (byte[])res["Y"];
+            Assert.True(b22 == null);
+        }
+
+
+        [Test]
+        public void testRawBig()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            var args = new Dictionary<String, Object>();
+            byte[] b = new byte[32767];
+            for (int i = 0; i < b.Length; i++)
+            {
+                b[i] = (byte)(i * 7 & 255);
+            }
+            args["X"] = b;
+            var res = p.call("p1.praw", args);
+            byte[] b2 = (byte[])res["Y"];
+            Assert.AreEqual(b2.Length, b.Length);
+            for (int i = 0; i < b2.Length; i++)
+            {
+                Assert.True(b[i] == b2[i]);
+            }
+        }
     }
 }
