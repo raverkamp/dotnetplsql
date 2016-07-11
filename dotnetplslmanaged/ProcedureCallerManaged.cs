@@ -1634,7 +1634,7 @@ namespace spinat.dotnetplslmanaged
                            end if;
 ");
 
-            //sb.Append("ar_ibt :=:p4;\n");
+            sb.Append("ar_ibt :=:p4;\n");
             sb.Append("ar := new " + this.rawTableName + "();\n");
             sb.Append(@"if ar_ibt.last > 0 then
                               for i in ar_ibt.first .. ar_ibt.last loop
@@ -1755,7 +1755,14 @@ namespace spinat.dotnetplslmanaged
                     pa.CollectionType = OracleCollectionType.PLSQLAssociativeArray;
                     //pa.UdtTypeName = "ROLAND.NUMBER_ARRAY";
                     pa.Direction = ParameterDirection.Input;
-                    pa.Value = aa.decimall.ToArray();
+                    if (aa.decimall.Count == 0)
+                    {
+                        pa.Value = new decimal[] { 1 };
+                    }
+                    else
+                    {
+                        pa.Value = aa.decimall.ToArray<decimal?>();
+                    }
                     cstm.Parameters.Add(pa);
                 }
 
@@ -1766,7 +1773,14 @@ namespace spinat.dotnetplslmanaged
                     pa.CollectionType = OracleCollectionType.PLSQLAssociativeArray;
                     //pa.UdtTypeName = "ROLAND.VARCHAR2_ARRAY";
                     pa.Direction = ParameterDirection.Input;
-                    pa.Value = aa.varchar2.ToArray();
+                    if (aa.varchar2.Count == 0)
+                    {
+                        pa.Value = new string[] { "x" };
+                    }
+                    else
+                    {
+                        pa.Value = aa.varchar2.ToArray();
+                    }
                     cstm.Parameters.Add(pa);
                 }
                   
@@ -1777,20 +1791,35 @@ namespace spinat.dotnetplslmanaged
                     pa.CollectionType = OracleCollectionType.PLSQLAssociativeArray;
                     //pa.UdtTypeName = "ROLAND.DATE_ARRAY";
                     pa.Direction = ParameterDirection.Input;
-                    pa.Value = aa.date.ToArray();
+                    if (aa.date.Count == 0)
+                    {
+                        pa.Value = new DateTime[] { DateTime.Now };
+                    }
+                    else
+                    {
+                        pa.Value = aa.date.ToArray<DateTime?>();
+                    }
                     cstm.Parameters.Add(pa);
                 }
                 
-                //{
-                //    OracleParameter pa = cstm.CreateParameter();
-                //    pa.ParameterName = "P4";
-                //    pa.OracleDbType = OracleDbType.Varchar2;
-                //    pa.CollectionType = OracleCollectionType.PLSQLAssociativeArray;
-                //    //pa.UdtTypeName = "ROLAND.RAW_ARRAY";
-                //    pa.Direction = ParameterDirection.Input;
-                //    pa.Value = new Oracle.ManagedDataAccess.Types.OracleString[] { };
-                //    cstm.Parameters.Add(pa);
-                //}
+                {
+                    OracleParameter pa = cstm.CreateParameter();
+                    pa.ParameterName = "P4";
+                    pa.OracleDbType = OracleDbType.Raw;
+                    pa.CollectionType = OracleCollectionType.PLSQLAssociativeArray;
+                    //pa.UdtTypeName = "ROLAND.RAW_ARRAY";
+                    pa.Direction = ParameterDirection.Input;
+                    if (aa.raw.Count == 0)
+                    {
+                        pa.Value = new Oracle.ManagedDataAccess.Types.OracleBinary[] { new OracleBinary(new byte[] { 1 }) };
+                    }
+                    else
+                    {
+                        pa.Value = aa.raw.ToArray<byte[]>();
+                    }
+                    cstm.Parameters.Add(pa);
+                }
+                
                  
                 //---------------------------------------------
                 {
