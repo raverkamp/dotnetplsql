@@ -66,19 +66,19 @@ namespace spinat.dotnetplsqltests
             Assert.True(res["XO"].Equals(new Decimal(13)) && res["YO"].Equals("xx"));
         }
 
-        //[Test]
-        //public void t1p()
-        //{
+        [Test]
+        public void t1p()
+        {
 
-        //    ProcedureCaller p = new ProcedureCaller(connection);
-        //    var xo = new Box<Object>();
-        //    var yo = new Box<Object>();
-        //    var zo = new Box<Object>();
+            ProcedureCaller p = new ProcedureCaller(connection);
+            var xo = new Box<Object>();
+            var yo = new Box<Object>();
+            var zo = new Box<Object>();
 
-        //    p.callPositional("P1.P", 12, "x", DateTime.Now, xo, yo, zo);
-        //    Assert.AreEqual(xo.value, new decimal(13));
-        //    Assert.AreEqual(yo.value, "xx");
-        //}
+            p.callPositional("P1.P", 12, "x", DateTime.Now, xo, yo, zo);
+            Assert.AreEqual(xo.value, new decimal(13));
+            Assert.AreEqual(yo.value, "xx");
+        }
 
         [Test]
         public void test2()
@@ -95,20 +95,20 @@ namespace spinat.dotnetplsqltests
             Assert.True(m["X"].Equals(new Decimal(13)) && m["Y"].Equals("xx"));
         }
 
-        //[Test]
-        //public void test2p()
-        //{
-        //    var a = new Dictionary<String, Object>();
-        //    a["X"] = 12;
-        //    a["Y"] = "x";
-        //    a["Z"] = DateTime.Now;
-        //    ProcedureCaller p = new ProcedureCaller(connection);
-        //    Box<Object> b = new Box<Object>();
-        //    p.callPositional("P1.P2", a, b);
-        //    Dictionary<String, Object> m = (Dictionary<String, Object>)b.value;
-        //    Assert.AreEqual(m["X"], new Decimal(13));
-        //    Assert.AreEqual(m["Y"], "xx");
-        //}
+        [Test]
+        public void test2p()
+        {
+            var a = new Dictionary<String, Object>();
+            a["X"] = 12;
+            a["Y"] = "x";
+            a["Z"] = DateTime.Now;
+            ProcedureCaller p = new ProcedureCaller(connection);
+            Box<Object> b = new Box<Object>();
+            p.callPositional("P1.P2", a, b);
+            Dictionary<String, Object> m = (Dictionary<String, Object>)b.value;
+            Assert.AreEqual(m["X"], new Decimal(13));
+            Assert.AreEqual(m["Y"], "xx");
+        }
 
         public void test3Base(int size)
         {
@@ -194,19 +194,19 @@ namespace spinat.dotnetplsqltests
             Assert.True(m["Z"] != null);
         }
 
-        //[Test]
-        //public void test5p()
-        //{
-        //    var a = new Dictionary<String, Object>();
-        //    a["X"] = null;
-        //    a["Y"] = null;
-        //    a["Z"] = null;
-        //    Box<Object> b = new Box<Object>();
-        //    new ProcedureCaller(connection).callPositional("P1.P2", a, b);
-        //    var m = (Dictionary<String, Object>)b.value;
-        //    Assert.IsNull(m["X"]);
-        //    Assert.IsNull(m["Y"]);
-        //}
+        [Test]
+        public void test5p()
+        {
+            var a = new Dictionary<String, Object>();
+            a["X"] = null;
+            a["Y"] = null;
+            a["Z"] = null;
+            Box<Object> b = new Box<Object>();
+            new ProcedureCaller(connection).callPositional("P1.P2", a, b);
+            var m = (Dictionary<String, Object>)b.value;
+            Assert.IsNull(m["X"]);
+            Assert.IsNull(m["Y"]);
+        }
 
         [Test]
         public void test6()
@@ -349,53 +349,53 @@ namespace spinat.dotnetplsqltests
         }
 
 
-        //[Test]
-        //public void TestSysRefCursor()
-        //{
-        //    ProcedureCaller p = new ProcedureCaller(connection);
-        //    Box<Object> b = new Box<Object>();
-        //    var dat = new DateTime(2001, 12, 1);
-        //    p.callPositional("p1.pcursor1", 17, "xyz", dat, b);
-        //    var l = (List<Dictionary<String, Object>>)b.value;
-        //    Assert.AreEqual(l.Count, 2);
-        //    var r2 = l[1];
-        //    Assert.AreEqual(r2["A"], "xyz");
-        //    Assert.AreEqual(r2["B"], new decimal(17));
-        //    Assert.AreEqual(r2["C"], dat);
-        //}
+        [Test]
+        public void TestSysRefCursor()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            Box<Object> b = new Box<Object>();
+            var dat = new DateTime(2001, 12, 1);
+            p.callPositional("p1.pcursor1", 17, "xyz", dat, b);
+            var l = (List<Dictionary<String, Object>>)b.value;
+            Assert.AreEqual(l.Count, 2);
+            var r2 = l[1];
+            Assert.AreEqual(r2["A"], "xyz");
+            Assert.AreEqual(r2["B"], new decimal(17));
+            Assert.AreEqual(r2["C"], dat);
+        }
 
-        //[Test]
-        //public void TestRefCursor()
-        //{
-        //    ProcedureCaller p = new ProcedureCaller(connection);
-        //    Box<Object> b = new Box<Object>();
-        //    DateTime dat = new DateTime(2001, 12, 1);
-        //    p.callPositional("p1.pcursor2", 17, "xyz", dat, b);
-        //    var l = (List<Dictionary<String, Object>>)b.value;
-        //    Assert.AreEqual(l.Count, 2);
-        //    var r2 = l[1];
-        //    Assert.AreEqual(r2["V"], "xyz");
-        //    Assert.AreEqual(r2["N"], new Decimal(17));
-        //    Assert.AreEqual(r2["D"], dat);
-        //}
+        [Test]
+        public void TestRefCursor()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            Box<Object> b = new Box<Object>();
+            DateTime dat = new DateTime(2001, 12, 1);
+            p.callPositional("p1.pcursor2", 17, "xyz", dat, b);
+            var l = (List<Dictionary<String, Object>>)b.value;
+            Assert.AreEqual(l.Count, 2);
+            var r2 = l[1];
+            Assert.AreEqual(r2["V"], "xyz");
+            Assert.AreEqual(r2["N"], new Decimal(17));
+            Assert.AreEqual(r2["D"], dat);
+        }
 
-        //[Test]
-        //public void TestRefCursor3()
-        //{
-        //    ProcedureCaller p = new ProcedureCaller(connection);
-        //    Box<Object> b = new Box<Object>();
-        //    Exception ex = null;
-        //    try
-        //    {
-        //        p.callPositional("p1.pcursor3", b);
-        //    }
-        //    catch (Exception exe)
-        //    {
-        //        ex = exe;
-        //    }
-        //    Assert.True(ex != null && ex is ApplicationException);
-        //    Assert.True(ex.Message.Contains("%rowtype"));
-        //}
+        [Test]
+        public void TestRefCursor3()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            Box<Object> b = new Box<Object>();
+            Exception ex = null;
+            try
+            {
+                p.callPositional("p1.pcursor3", b);
+            }
+            catch (Exception exe)
+            {
+                ex = exe;
+            }
+            Assert.True(ex != null && ex is ApplicationException);
+            Assert.True(ex.Message.Contains("%rowtype"));
+        }
 
         [Test]
         public void TestIndexBy()
