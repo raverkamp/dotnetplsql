@@ -1644,13 +1644,9 @@ namespace spinat.dotnetplsql
             return sb.ToString();
         }
 
-        private Dictionary<String, Object> call(
-                Procedure p, Dictionary<String, Object> args)
+        private ResArrays baseCall(
+                Procedure p,  ArgArrays aa) //, Dictionary<String, Object> args)
         {
-            if (p.plsqlstatement == null)
-            {
-                p.plsqlstatement = createStatementString(p);
-            }
             if (this.effectiveNumberTableName == null)
             {
                 this.effectiveNumberTableName = computeEffectiveName(this.numberTableName);
@@ -1676,24 +1672,6 @@ namespace spinat.dotnetplsql
             using (OracleCommand cstm = this.connection.CreateCommand())
             {
                 cstm.CommandText = p.plsqlstatement;
-                ArgArrays aa = new ArgArrays();
-                foreach (Argument arg in p.arguments)
-                {
-                    if (arg.direction.Equals("OUT"))
-                    {
-                        continue;
-                    }
-                    if (args.ContainsKey(arg.name))
-                    {
-                        Object o = args[arg.name];
-                        arg.type.fillArgArrays(aa, o);
-                    }
-                    else
-                    {
-                        throw new ConversionException("could not find argument " + arg.name);
-                    }
-                }
-
                 {
                     OracleParameter pa = cstm.CreateParameter();
                     pa.ParameterName = "P1";
@@ -1800,6 +1778,35 @@ namespace spinat.dotnetplsql
             {
                 ra.raw.Add(b);
             }
+            return ra;
+        }
+
+        private Dictionary<String, Object> call(
+           Procedure p, Dictionary<String, Object> args)
+        {
+            if (p.plsqlstatement == null)
+            {
+                p.plsqlstatement = createStatementString(p);
+            }
+            ArgArrays aa = new ArgArrays();
+            foreach (Argument arg in p.arguments)
+            {
+                if (arg.direction.Equals("OUT"))
+                {
+                    continue;
+                }
+                if (args.ContainsKey(arg.name))
+                {
+                    Object o = args[arg.name];
+                    arg.type.fillArgArrays(aa, o);
+                }
+                else
+                {
+                    throw new ConversionException("could not find argument " + arg.name);
+                }
+            }
+            ResArrays ra = baseCall(p, aa);
+
             Dictionary<String, Object> res = new Dictionary<String, Object>();
             if (p.returnType != null)
             {
@@ -1818,6 +1825,7 @@ namespace spinat.dotnetplsql
             return res;
         }
 
+
         // call the procedure, for each parameter there must be an entry in Object
         private Object callPositional(Procedure p, Object[] args)
         {
@@ -1825,38 +1833,6 @@ namespace spinat.dotnetplsql
             {
                 p.plsqlstatement = createStatementString(p);
             }
-            if (this.effectiveNumberTableName == null)
-            {
-                this.effectiveNumberTableName = computeEffectiveName(this.numberTableName);
-            }
-            if (this.effectiveVarchar2TableName == null)
-            {
-                this.effectiveVarchar2TableName = computeEffectiveName(this.varchar2TableName);
-            }
-            if (this.effectiveDateTimeTableName == null)
-            {
-                this.effectiveDateTimeTableName = computeEffectiveName(this.DateTimeTableName);
-            }
-            if (this.effectiveRawTableName == null)
-            {
-                this.effectiveRawTableName = computeEffectiveName(this.rawTableName);
-            }
-            if (p.arguments.Count > args.Length)
-            {
-                throw new ApplicationException("not enough arguments supplied");
-            }
-            if (p.arguments.Count < args.Length)
-            {
-                throw new ApplicationException("too many arguments supplied");
-            }
-
-            decimal?[] no;
-            string[] vo;
-            DateTime?[] do_;
-            byte[][] ro;
-            using (OracleCommand cstm = this.connection.CreateCommand())
-            {
-                cstm.CommandText = p.plsqlstatement;
                 ArgArrays aa = new ArgArrays();
                 {
                     int i = 0;
@@ -1874,108 +1850,7 @@ namespace spinat.dotnetplsql
                         i++;
                     }
                 }
-                {
-                    OracleParameter pa = cstm.CreateParameter();
-                    pa.ParameterName = "P1";
-                    //pa.OracleDbType = OracleDbType.Object;
-                    pa.OracleDbTypeEx = OracleDbType.Array;
-                    pa.UdtTypeName = "ROLAND.NUMBER_ARRAY";
-                    pa.Direction = ParameterDirection.Input;
-                    pa.Value = aa.decimall.ToArray();
-                    cstm.Parameters.Add(pa);
-                }
-
-
-                {
-                    OracleParameter pa = cstm.CreateParameter();
-                    pa.ParameterName = "P2";
-                    //pa.OracleDbType = OracleDbType.Object;
-                    pa.OracleDbTypeEx = OracleDbType.Array;
-                    pa.UdtTypeName = "ROLAND.VARCHAR2_ARRAY";
-                    pa.Direction = ParameterDirection.Input;
-                    pa.Value = aa.varchar2.ToArray();
-                    cstm.Parameters.Add(pa);
-                }
-                {
-                    OracleParameter pa = cstm.CreateParameter();
-                    pa.ParameterName = "P3";
-                    //pa.OracleDbType = OracleDbType.Object;
-                    pa.OracleDbTypeEx = OracleDbType.Array;
-                    pa.UdtTypeName = "ROLAND.DATE_ARRAY";
-                    pa.Direction = ParameterDirection.Input;
-                    pa.Value = aa.date.ToArray();
-                    cstm.Parameters.Add(pa);
-                }
-                {
-                    OracleParameter pa = cstm.CreateParameter();
-                    pa.ParameterName = "P4";
-                    //pa.OracleDbType = OracleDbType.Object;
-                    pa.OracleDbTypeEx = OracleDbType.Array;
-                    pa.UdtTypeName = "ROLAND.RAW_ARRAY";
-                    pa.Direction = ParameterDirection.Input;
-                    pa.Value = aa.raw.ToArray();
-                    cstm.Parameters.Add(pa);
-                }
-                //---------------------------------------------
-                {
-                    OracleParameter pa = cstm.CreateParameter();
-                    pa.ParameterName = "P5";
-                    pa.Direction = ParameterDirection.Output;
-                    pa.OracleDbType = OracleDbType.Object;
-                    pa.OracleDbTypeEx = OracleDbType.Array;
-                    pa.UdtTypeName = "ROLAND.NUMBER_ARRAY";
-                    cstm.Parameters.Add(pa);
-                }
-                {
-                    OracleParameter pa = cstm.CreateParameter();
-                    pa.ParameterName = "P6";
-                    pa.Direction = ParameterDirection.Output;
-                    pa.OracleDbType = OracleDbType.Object;
-                    pa.OracleDbTypeEx = OracleDbType.Array;
-                    pa.UdtTypeName = "ROLAND.VARCHAR2_ARRAY";
-                    cstm.Parameters.Add(pa);
-                }
-                {
-                    OracleParameter pa = cstm.CreateParameter();
-                    pa.ParameterName = "P7";
-                    pa.Direction = ParameterDirection.Output;
-                    pa.OracleDbType = OracleDbType.Object;
-                    pa.OracleDbTypeEx = OracleDbType.Array;
-                    pa.UdtTypeName = "ROLAND.DATE_ARRAY";
-                    cstm.Parameters.Add(pa);
-                }
-                {
-                    OracleParameter pa = cstm.CreateParameter();
-                    pa.ParameterName = "P8";
-                    pa.Direction = ParameterDirection.Output;
-                    pa.OracleDbType = OracleDbType.Object;
-                    pa.OracleDbTypeEx = OracleDbType.Array;
-                    pa.UdtTypeName = "ROLAND.RAW_ARRAY";
-                    cstm.Parameters.Add(pa);
-                }
-
-                cstm.ExecuteNonQuery();
-                no = ((SimpleNumberArray)cstm.Parameters["P5"].Value).Array;
-                vo = ((SimpleStringArray)cstm.Parameters["P6"].Value).Array;
-                do_ = ((SimpleDateArray)cstm.Parameters["P7"].Value).Array;
-                ro = ((SimpleRawArray)cstm.Parameters["P8"].Value).Array;
-            }
-            ResArrays ra = new ResArrays();
-
-            foreach (decimal? o in no)
-            {
-                ra.decimall.Add(o);
-            }
-
-            foreach (String o in vo)
-            {
-                ra.varchar2.Add(o);
-            }
-
-            foreach (DateTime? o in do_)
-            {
-                ra.date.Add(o);
-            }
+                ResArrays ra = baseCall(p, aa);
             Object result;
             if (p.returnType != null)
             {
