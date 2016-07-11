@@ -54,6 +54,7 @@
     <Compile Include="Ddl.cs" />
     <Compile Include="ExampleTestManaged.cs" />
     <Compile Include="ExampleTest.cs" />
+    <Compile Include="FuncTestManaged.cs" />
     <Compile Include="FuncTest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
