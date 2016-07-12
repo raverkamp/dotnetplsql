@@ -29,6 +29,10 @@ namespace spinat.dotnetplsqltests
             ExampleTestManaged tm = new ExampleTestManaged(cm);
             tm.example1();
 
+            var ft = new FuncTest();
+            ft.setUp();
+            ft.testVarcharout();
+            ft.testVarcharBig();
 
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);

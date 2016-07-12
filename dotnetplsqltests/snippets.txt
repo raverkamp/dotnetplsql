@@ -55,8 +55,11 @@ type tabvv is table of tabv index by varchar2(200);
 
 procedure pindex_tab2(x in out tabvv);
 
-procedure praw(x in raw,y out raw);
+procedure praw(x in raw,sizee integer,y out raw);
 
+procedure pvarchar2(x in varchar2,sizee integer,y out varchar2);
+
+procedure varchar2_out(x out varchar2);
 
 end;
 ## p1_body
@@ -188,9 +191,33 @@ begin
   null;
 end;
 
-procedure praw(x in raw,y out raw) is
+procedure praw(x in raw,sizee integer,y out raw) is
 begin
+ if not x is null then
+   if UTL_RAW.length(x) = sizee then
+     null;
+   else
+     raise_application_error(-20000,'sizes do not match: real='||UTL_RAW.length(x)||', sizze='||sizee);
+   end if;
+ end if;
   y:= x;
+end;
+
+procedure pvarchar2(x in varchar2,sizee integer,y out varchar2) is
+begin
+ if not x is null then
+   if length(x) = sizee then
+     null;
+   else
+     raise_application_error(-20000,'sizes do not match: real='||length(x)||', sizze='||sizee);
+   end if;
+ end if;
+  y:= x;
+end;
+
+procedure varchar2_out(x out varchar2) is
+begin
+  x := chr(0)||'roland';
 end;
 
 end;

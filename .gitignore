@@ -1,2 +1,5 @@
 obj
 bin
+/dotnetplsqltests/TestResult.xml
+dotnetplsqltests.csproj.user
+/TestResult.xml

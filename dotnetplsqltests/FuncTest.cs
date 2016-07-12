@@ -474,6 +474,7 @@ namespace spinat.dotnetplsqltests
             var args = new Dictionary<String, Object>();
             byte[] b = new byte[] { 1, 2, 3, 4, 76, 97 };
             args["X"] = b;
+            args["SIZEE"] = b.Length;
             var res = p.call("p1.praw", args);
             byte[] b2 = (byte[])res["Y"];
             Assert.True(b2.Length == b.Length);
@@ -491,11 +492,13 @@ namespace spinat.dotnetplsqltests
             var args = new Dictionary<String, Object>();
             byte[] b = new byte[0];
             args["X"] = b;
+            args["SIZEE"] = b.Length;
             var res = p.call("p1.praw", args);
             byte[] b2 = (byte[])res["Y"];
             Assert.True(b2 == null);
             //
             args["X"] = null;
+            args["SIZEE"] = null;
             var res2 = p.call("p1.praw", args);
             byte[] b22 = (byte[])res["Y"];
             Assert.True(b22 == null);
@@ -504,14 +507,16 @@ namespace spinat.dotnetplsqltests
         [Test]
         public void testRawBig()
         {
+            int n = 32767;
             ProcedureCaller p = new ProcedureCaller(connection);
             var args = new Dictionary<String, Object>();
-            byte[] b = new byte[32767];
+            byte[] b = new byte[n];
             for (int i = 0; i < b.Length; i++)
             {
                 b[i] = (byte)(i * 7 & 255);
             }
             args["X"] = b;
+            args["SIZEE"] = b.Length;
             var res = p.call("p1.praw", args);
             byte[] b2 = (byte[])res["Y"];
             Assert.AreEqual(b2.Length, b.Length);
@@ -520,5 +525,61 @@ namespace spinat.dotnetplsqltests
                 Assert.True(b[i] == b2[i]);
             }
         }
+
+        [Test]
+        public void testVarcharBig()
+        {
+            int n = 32767;
+            ProcedureCaller p = new ProcedureCaller(connection);
+            var args = new Dictionary<String, Object>();
+            char[] b = new char[n];
+            for (int i = 0; i < b.Length; i++)
+            {
+                b[i] = (char)(i * 7 +1& 127);
+                if (b[i] == 0)
+                {
+                    b[i] = (char)1;
+                }
+            }
+            String s = new String(b);
+            args["X"] = s;
+            args["SIZEE"] = s.Length;
+            var res = p.call("p1.pvarchar2", args);
+            var s2 = (string)res["Y"];
+            Assert.AreEqual(s.Length, s2.Length);
+            for (int i = 0; i < s2.Length; i++)
+            {
+                Assert.True(s[i] == s2[i]);
+            }
+        }
+
+        public void testVarcharBig2()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            var args = new Dictionary<String, Object>();
+            String s = "roland";
+            args["X"] = s;
+            args["SIZEE"] = s.Length;
+            var res = p.call("p1.pvarchar2", args);
+            var s2 = (string)res["Y"];
+            Assert.AreEqual(s.Length, s2.Length);
+            for (int i = 0; i < s2.Length; i++)
+            {
+                Assert.True(s[i] == s2[i]);
+            }
+        }
+
+        [Test]
+        public void testVarcharout()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            var box = new Box<object>();
+            p.callPositional("p1.varchar2_out",new Object[]{box});
+            // we get "" instead of null! Thr eturn value is  chr(0)||'roland'
+            // and the oci code cuts this off c strings?
+            Assert.AreEqual("", (string)box.value);
+        }
+
+
     }
 }
