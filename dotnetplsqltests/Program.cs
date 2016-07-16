@@ -8,34 +8,45 @@ namespace spinat.dotnetplsqltests
 	{
 		public static void Main(string[] args)
 		{
-			Console.WriteLine("Hello World!");
-			
-			var b = new OracleConnectionStringBuilder();
-			b.UserID = "roland";
-			b.Password = "roland";
-			b.DataSource = "ltrav01";
-			
-            //var c = new OracleConnection();
-            //c.ConnectionString = b.ConnectionString;
-            //c.Open();
-			
-            //ExampleTest t = new ExampleTest(c);
-            //t.example1();
+			Console.WriteLine("Los gehts!");
+            ErrorTests();
+			Console.Write("Press any key to continue . . . ");
+			Console.ReadKey(true);
+		}
 
+        static void ExampleTestManaged()
+        {
+            var b = new OracleConnectionStringBuilder();
+            b.UserID = "roland";
+            b.Password = "roland";
+            b.DataSource = "ltrav01";
+			
             var cm = new Oracle.ManagedDataAccess.Client.OracleConnection();
             cm.ConnectionString = b.ConnectionString;
             cm.Open();
 
             ExampleTestManaged tm = new ExampleTestManaged(cm);
             tm.example1();
+        }
 
+        static void FuncTest()
+        {
             var ft = new FuncTest();
             ft.setUp();
             ft.testVarcharout();
             ft.testVarcharBig();
+        }
 
-			Console.Write("Press any key to continue . . . ");
-			Console.ReadKey(true);
-		}
+        static void ErrorTests()
+        {
+            var et = new ErrorTestManaged();
+            et.setUp();
+            et.testRaiseApplicationError();
+            et.testToLargeVarchar2();
+            et.testParamMissing();
+            et.testSlotMissing();
+
+        }
+
 	}
 }
