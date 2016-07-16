@@ -1,27 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
+
 
 namespace spinat.dotnetplslmanaged
 {
-
-    using System;
-    using System.Collections.Generic;
-    using System.Security.Cryptography;
-    using System.Text;
-    using Oracle.ManagedDataAccess.Client;
-    using System.Data;
-    using Oracle.ManagedDataAccess.Types;
-    using System.Diagnostics;
-
-
-
     public class ConversionException : Exception
     {
 
-        public ConversionException(String bla)
+        public ConversionException(String bla):base(bla)
         {
 
         }

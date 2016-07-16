@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ddl.cs" />
+    <Compile Include="DbmsOutputTestManaged.cs" />
     <Compile Include="ExampleTestManaged.cs" />
     <Compile Include="ExampleTest.cs" />
     <Compile Include="FuncTestManaged.cs" />
