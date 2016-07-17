@@ -54,7 +54,7 @@ namespace spinat.dotnetplsqltests
                 Dictionary<String, Object> args = new Dictionary<String, Object>();
                 // the argument names are case sensitive
                 args["A"] = al;
-                Dictionary<String, Object> result = procCaller.call("example1.p", args);
+                Dictionary<String, Object> result = procCaller.Call("example1.p", args);
                 // all out paramters are packed into a Map<String,Object> and returned
                 foreach (Object o in (List<Object>)result["B"])
                 {
@@ -69,7 +69,7 @@ namespace spinat.dotnetplsqltests
             {
                 Dictionary<String, Object> args = new Dictionary<String, Object>();
                 args["A"] = new List<Dictionary<String, Object>>();
-                Dictionary<String, Object> result = procCaller.call("example1.p", args);
+                Dictionary<String, Object> result = procCaller.Call("example1.p", args);
 
             }
         }

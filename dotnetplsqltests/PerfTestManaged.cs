@@ -69,7 +69,7 @@ namespace spinat.dotnetplsqltests
                 l.Add(a);
             }
             ar["A"] =  l;
-            var res = new ProcedureCaller(connection).call("P1.P3", ar);
+            var res = new ProcedureCaller(connection).Call("P1.P3", ar);
             var l2 = (List<Object>)res["B"];
             for (int i = 0; i < l.Count; i++)
             {
@@ -158,7 +158,7 @@ namespace spinat.dotnetplsqltests
             {
                 args["IN" + i] = m;
             }
-            var res = new ProcedureCaller(connection).call("P2.P", args);
+            var res = new ProcedureCaller(connection).Call("P2.P", args);
             System.Console.WriteLine(res);
         }
 
@@ -178,7 +178,7 @@ namespace spinat.dotnetplsqltests
             }
             var args = new Dictionary<String, Object>();
             args["A"] = a;
-          var res = new ProcedureCaller(connection).call("P1.P5", args);
+          var res = new ProcedureCaller(connection).Call("P1.P5", args);
            var b = (List<Object>)res["B"];
             for (int i = 0; i < Math.Max(a.Count, b.Count); i++)
             {

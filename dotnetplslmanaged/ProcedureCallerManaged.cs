@@ -1962,8 +1962,6 @@ namespace spinat.dotnetplslmanaged
                     pa.ParameterName = "P5";
                     pa.Direction = ParameterDirection.Output;
                     pa.OracleDbType = OracleDbType.RefCursor;
-                    //pa.OracleDbTypeEx = OracleDbType.Array;
-                    //pa.UdtTypeName = "ROLAND.NUMBER_ARRAY";
                     cstm.Parameters.Add(pa);
                 }
                 {
@@ -1971,8 +1969,7 @@ namespace spinat.dotnetplslmanaged
                     pa.ParameterName = "P6";
                     pa.Direction = ParameterDirection.Output;
                     pa.OracleDbType = OracleDbType.RefCursor;
-                    //pa.OracleDbTypeEx = OracleDbType.Array;
-                    //pa.UdtTypeName = "ROLAND.VARCHAR2_ARRAY";
+          
                     cstm.Parameters.Add(pa);
                 }
                 {
@@ -1980,8 +1977,6 @@ namespace spinat.dotnetplslmanaged
                     pa.ParameterName = "P7";
                     pa.Direction = ParameterDirection.Output;
                     pa.OracleDbType = OracleDbType.RefCursor;
-                    //pa.OracleDbTypeEx = OracleDbType.Array;
-                    //pa.UdtTypeName = "ROLAND.DATE_ARRAY";
                     cstm.Parameters.Add(pa);
                 }
                 {
@@ -1989,8 +1984,6 @@ namespace spinat.dotnetplslmanaged
                     pa.ParameterName = "P8";
                     pa.Direction = ParameterDirection.Output;
                     pa.OracleDbType = OracleDbType.RefCursor;
-                    //pa.OracleDbTypeEx = OracleDbType.Array;
-                    //pa.UdtTypeName = "ROLAND.RAW_ARRAY";
                     cstm.Parameters.Add(pa);
                 }
                 //Debug.WriteLine(cstm.CommandText);
@@ -2300,7 +2293,7 @@ namespace spinat.dotnetplslmanaged
             return res;
         }
 
-        public Dictionary<String, Object> call(
+        public Dictionary<String, Object> Call(
                 String name, int overload, Dictionary<String, Object> args)
         {
             List<Procedure> procs = getProcs(name);
@@ -2316,7 +2309,7 @@ namespace spinat.dotnetplslmanaged
             return call(procs[overload - 1], args);
         }
 
-        public Dictionary<String, Object> call(
+        public Dictionary<String, Object> Call(
                 String name, Dictionary<String, Object> args)
         {
             List<Procedure> procs = getProcs(name);
@@ -2330,7 +2323,7 @@ namespace spinat.dotnetplslmanaged
             }
         }
 
-        public Object callPositional(String name, params Object[] args)
+        public Object CallPositional(String name, params Object[] args)
         {
             List<Procedure> procs = getProcs(name);
             if (procs.Count > 1)
@@ -2343,7 +2336,7 @@ namespace spinat.dotnetplslmanaged
             }
         }
 
-        public Object callPositionalO(String name, int overload, params Object[] args)
+        public Object CallPositionalOverload(String name, int overload, params Object[] args)
         {
             List<Procedure> procs = getProcs(name);
             if (overload > procs.Count)

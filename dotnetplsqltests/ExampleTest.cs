@@ -49,7 +49,7 @@ public class ExampleTest {
         Dictionary<String, Object> args = new Dictionary<String, Object>();
         // the argument names are case sensitive
         args["A"] = al;
-        Dictionary<String, Object> result = procCaller.call("example1.p", args);
+        Dictionary<String, Object> result = procCaller.Call("example1.p", args);
         // all out paramters are packed into a Map<String,Object> and returned
         foreach (Object o in (List< Object>) result["B"]) {
             var d = (Dictionary<String, Object>)o;

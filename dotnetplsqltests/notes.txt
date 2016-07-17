@@ -8,4 +8,4 @@ nunit3-console bin\Debug\dotnetplsqltests.exe
 
 dbms_sql column types
 you have to do experiments to get the correct columns 
-prblems with raw and varchar2, 
+problems with raw and varchar2, 

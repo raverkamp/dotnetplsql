@@ -49,7 +49,7 @@ public class ErrorTestManaged {
         a["TXT"] =  "schlimmer fehler";
         // the output looks OK, maybe there is nothing to be done
         try {
-            var res = p.call("p1.raise_error", a);
+            var res = p.Call("p1.raise_error", a);
             System.Console.WriteLine(res);
         } catch (Exception ex) {
             System.Console.WriteLine(ex);
@@ -67,7 +67,7 @@ public class ErrorTestManaged {
         r["Z"] = null;
         a["A"] =  r;
         try {
-            var res = p.call("p1.p2", a);
+            var res = p.Call("p1.p2", a);
         } catch (Exception ex) {
             System.Console.WriteLine(ex);
             cl = ex.GetType();
@@ -86,7 +86,7 @@ public class ErrorTestManaged {
         r["Z"] =  null;
         a["A"] = r;
         try {
-           var res = p.call("p1.p2", a);
+           var res = p.Call("p1.p2", a);
         } catch (Exception ex) {
             System.Console.WriteLine(ex);
             cl = ex.GetType();
@@ -101,7 +101,7 @@ public class ErrorTestManaged {
         ProcedureCaller p = new ProcedureCaller(connection);
         var a = new  Dictionary<String, Object>();
         try {
-            var res = p.call("p1.p2", a);
+            var res = p.Call("p1.p2", a);
         } catch (Exception ex) {
             System.Console.WriteLine(ex);
             cl = ex.GetType();

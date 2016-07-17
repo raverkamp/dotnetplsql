@@ -1990,7 +1990,7 @@ namespace spinat.dotnetplsql
             return res;
         }
 
-        public Dictionary<String, Object> call(
+        public Dictionary<String, Object> Call(
                 String name, int overload, Dictionary<String, Object> args)
         {
             List<Procedure> procs = getProcs(name);
@@ -2006,7 +2006,7 @@ namespace spinat.dotnetplsql
             return call(procs[overload - 1], args);
         }
 
-        public Dictionary<String, Object> call(
+        public Dictionary<String, Object> Call(
                 String name, Dictionary<String, Object> args)
         {
             List<Procedure> procs = getProcs(name);
@@ -2020,7 +2020,7 @@ namespace spinat.dotnetplsql
             }
         }
 
-        public Object callPositional(String name, params Object[] args)
+        public Object CallPositional(String name, params Object[] args)
         {
             List<Procedure> procs = getProcs(name);
             if (procs.Count > 1)
@@ -2033,7 +2033,7 @@ namespace spinat.dotnetplsql
             }
         }
 
-        public Object callPositionalO(String name, int overload, params Object[] args)
+        public Object CallPositionalOverload(String name, int overload, params Object[] args)
         {
             List<Procedure> procs = getProcs(name);
             if (overload > procs.Count)

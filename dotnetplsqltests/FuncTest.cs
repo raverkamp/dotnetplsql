@@ -61,7 +61,7 @@ namespace spinat.dotnetplsqltests
             ar["XI"] = 12;
             ar["YI"] = "x";
             ar["ZI"] = DateTime.Now;
-            var res = new ProcedureCaller(connection).call("P1.P", ar);
+            var res = new ProcedureCaller(connection).Call("P1.P", ar);
             System.Console.WriteLine(res);
             Assert.True(res["XO"].Equals(new Decimal(13)) && res["YO"].Equals("xx"));
         }
@@ -75,7 +75,7 @@ namespace spinat.dotnetplsqltests
             var yo = new Box<Object>();
             var zo = new Box<Object>();
 
-            p.callPositional("P1.P", 12, "x", DateTime.Now, xo, yo, zo);
+            p.CallPositional("P1.P", 12, "x", DateTime.Now, xo, yo, zo);
             Assert.AreEqual(xo.value, new decimal(13));
             Assert.AreEqual(yo.value, "xx");
         }
@@ -89,7 +89,7 @@ namespace spinat.dotnetplsqltests
             a["Y"] = "x";
             a["Z"] = DateTime.Now;
             ar["A"] = a;
-            Dictionary<String, Object> res = new ProcedureCaller(connection).call("P1.P2", ar);
+            Dictionary<String, Object> res = new ProcedureCaller(connection).Call("P1.P2", ar);
             Console.WriteLine(res);
             Dictionary<String, Object> m = (Dictionary<String, Object>)res["B"];
             Assert.True(m["X"].Equals(new Decimal(13)) && m["Y"].Equals("xx"));
@@ -104,7 +104,7 @@ namespace spinat.dotnetplsqltests
             a["Z"] = DateTime.Now;
             ProcedureCaller p = new ProcedureCaller(connection);
             Box<Object> b = new Box<Object>();
-            p.callPositional("P1.P2", a, b);
+            p.CallPositional("P1.P2", a, b);
             Dictionary<String, Object> m = (Dictionary<String, Object>)b.value;
             Assert.AreEqual(m["X"], new Decimal(13));
             Assert.AreEqual(m["Y"], "xx");
@@ -123,7 +123,7 @@ namespace spinat.dotnetplsqltests
                 l.Add(a);
             }
             ar["A"] = l;
-            Dictionary<String, Object> res = new ProcedureCaller(connection).call("P1.P3", ar);
+            Dictionary<String, Object> res = new ProcedureCaller(connection).Call("P1.P3", ar);
             var l2 = (System.Collections.IList)res["B"];
             for (int i = 0; i < l.Count; i++)
             {
@@ -159,7 +159,7 @@ namespace spinat.dotnetplsqltests
                 l0.Add(l);
             }
             ar["A"] = l0;
-            Dictionary<String, Object> res = new ProcedureCaller(connection).call("P1.P4", ar);
+            Dictionary<String, Object> res = new ProcedureCaller(connection).Call("P1.P4", ar);
             System.Console.WriteLine(res);
             var l2 = (System.Collections.IList)res["A"];
             for (int i = 0; i < l2.Count; i++)
@@ -186,7 +186,7 @@ namespace spinat.dotnetplsqltests
             a["Y"] = null;
             a["Z"] = null;
             ar["A"] = a;
-            var res = new ProcedureCaller(connection).call("P1.P2", ar);
+            var res = new ProcedureCaller(connection).Call("P1.P2", ar);
             System.Console.WriteLine(res);
             var m = (Dictionary<String, Object>)res["B"];
             Assert.True(m["X"] == null);
@@ -202,7 +202,7 @@ namespace spinat.dotnetplsqltests
             a["Y"] = null;
             a["Z"] = null;
             Box<Object> b = new Box<Object>();
-            new ProcedureCaller(connection).callPositional("P1.P2", a, b);
+            new ProcedureCaller(connection).CallPositional("P1.P2", a, b);
             var m = (Dictionary<String, Object>)b.value;
             Assert.IsNull(m["X"]);
             Assert.IsNull(m["Y"]);
@@ -218,7 +218,7 @@ namespace spinat.dotnetplsqltests
                 l0.Add(null);
             }
             ar["A"] = l0;
-            var res = new ProcedureCaller(connection).call("P1.P4", ar);
+            var res = new ProcedureCaller(connection).Call("P1.P4", ar);
             Console.WriteLine(res);
             var l2 = (System.Collections.IList)res["A"];
             for (int i = 0; i < l2.Count; i++)
@@ -234,14 +234,14 @@ namespace spinat.dotnetplsqltests
             a["X"] = 23;
             a["Y"] = "roland";
             a["Z"] = DateTime.Now;
-            var m = new ProcedureCaller(connection).call("proc1", a);
+            var m = new ProcedureCaller(connection).Call("proc1", a);
         }
 
         [Test]
         public void test8()
         {
             var a = new Dictionary<String, Object>();
-            var m = new ProcedureCaller(connection).call("p1.p6", a);
+            var m = new ProcedureCaller(connection).Call("p1.p6", a);
         }
 
         [Test]
@@ -252,7 +252,7 @@ namespace spinat.dotnetplsqltests
             a["B"] = "rote gruetze";
             var dat = new DateTime(2014, 12, 3, 23, 45, 1, 0);
             a["C"] = dat;
-            var m = new ProcedureCaller(connection).call("p1.f7", a);
+            var m = new ProcedureCaller(connection).Call("p1.f7", a);
             var r = (Dictionary<String, Object>)m["RETURN"];
             Assert.True(r["X"].Equals(new Decimal(-123)));
             Assert.True(r["Y"].Equals("rote gruetze"));
@@ -265,19 +265,19 @@ namespace spinat.dotnetplsqltests
             var a = new Dictionary<String, Object>();
             {
                 a["X"] = true;
-                var m = new ProcedureCaller(connection).call("p1.p8", a);
+                var m = new ProcedureCaller(connection).Call("p1.p8", a);
                 var y = (bool)(m["Y"]);
                 Assert.True(!y);
             }
             {
                 a["X"] = false;
-                var m = new ProcedureCaller(connection).call("p1.p8", a);
+                var m = new ProcedureCaller(connection).Call("p1.p8", a);
                 var y = (bool)(m["Y"]);
                 Assert.True(y);
             }
             {
                 a["X"] = null;
-                var m = new ProcedureCaller(connection).call("p1.p8", a);
+                var m = new ProcedureCaller(connection).Call("p1.p8", a);
                 var y = (bool?)(m["Y"]);
                 Assert.True(!y.HasValue);
             }
@@ -290,7 +290,7 @@ namespace spinat.dotnetplsqltests
             {
                 a["X1"] = 1;
                 a["X2"] = 19;
-                var m = new ProcedureCaller(connection).call("p1.p9", a);
+                var m = new ProcedureCaller(connection).Call("p1.p9", a);
                 var y1 = (Decimal)m["Y1"];
                 Assert.True(y1.Equals(new Decimal(-1)));
                 var y2 = (Decimal)m["Y2"];
@@ -305,11 +305,11 @@ namespace spinat.dotnetplsqltests
         {
             Box<Object> b = new Box<Object>();
             ProcedureCaller p = new ProcedureCaller(connection);
-            p.callPositional("p1.p5", null, b);
+            p.CallPositional("p1.p5", null, b);
             Assert.Null(b.value);
 
             List<String> l = new List<String>();
-            p.callPositional("p1.p5", l, b);
+            p.CallPositional("p1.p5", l, b);
             Assert.NotNull(b.value);
             Assert.AreEqual(0, ((List<Object>)b.value).Count);
         }
@@ -321,11 +321,11 @@ namespace spinat.dotnetplsqltests
             var a = new Dictionary<String, Object>();
             ProcedureCaller p = new ProcedureCaller(connection);
             Dictionary<String, Object> res;
-            res = p.call("p1.no_args", a);
-            res = p.call("\"P1\".no_args", a);
-            res = p.call("\"P1\".\"NO_ARGS\"", a);
-            res = p.call("p1.\"NO_ARGS\"", a);
-            res = p.call("p1.\"NO_ARGS\"", a);
+            res = p.Call("p1.no_args", a);
+            res = p.Call("\"P1\".no_args", a);
+            res = p.Call("\"P1\".\"NO_ARGS\"", a);
+            res = p.Call("p1.\"NO_ARGS\"", a);
+            res = p.Call("p1.\"NO_ARGS\"", a);
         }
 
         [Test]
@@ -337,7 +337,7 @@ namespace spinat.dotnetplsqltests
             Exception ex = null;
             try
             {
-                res = p.call("p1.this_proc_does_not_exist", a);
+                res = p.Call("p1.this_proc_does_not_exist", a);
             }
             catch (Exception exe)
             {
@@ -355,7 +355,7 @@ namespace spinat.dotnetplsqltests
             ProcedureCaller p = new ProcedureCaller(connection);
             Box<Object> b = new Box<Object>();
             var dat = new DateTime(2001, 12, 1);
-            p.callPositional("p1.pcursor1", 17, "xyz", dat, b);
+            p.CallPositional("p1.pcursor1", 17, "xyz", dat, b);
             var l = (List<Dictionary<String, Object>>)b.value;
             Assert.AreEqual(l.Count, 2);
             var r2 = l[1];
@@ -370,7 +370,7 @@ namespace spinat.dotnetplsqltests
             ProcedureCaller p = new ProcedureCaller(connection);
             Box<Object> b = new Box<Object>();
             DateTime dat = new DateTime(2001, 12, 1);
-            p.callPositional("p1.pcursor2", 17, "xyz", dat, b);
+            p.CallPositional("p1.pcursor2", 17, "xyz", dat, b);
             var l = (List<Dictionary<String, Object>>)b.value;
             Assert.AreEqual(l.Count, 2);
             var r2 = l[1];
@@ -387,7 +387,7 @@ namespace spinat.dotnetplsqltests
             Exception ex = null;
             try
             {
-                p.callPositional("p1.pcursor3", b);
+                p.CallPositional("p1.pcursor3", b);
             }
             catch (Exception exe)
             {
@@ -415,7 +415,7 @@ namespace spinat.dotnetplsqltests
                 bi[i] = "v" + i;
             }
             args["BI"] = bi;
-            var res = p.call("p1.pindex_tab", args);
+            var res = p.Call("p1.pindex_tab", args);
             var ao = (SortedDictionary<String, Object>)res["AO"];
             var bo = (SortedDictionary<int, Object>)res["BO"];
             Assert.AreEqual(ao.Count, n);
@@ -449,7 +449,7 @@ namespace spinat.dotnetplsqltests
                 }
                 tm["a" + i] = h;
             }
-            Dictionary<String, Object> res = p.call("p1.pindex_tab2", args);
+            Dictionary<String, Object> res = p.Call("p1.pindex_tab2", args);
             var tm2 = (SortedDictionary<String, Object>)res["X"];
             Assert.True(tm2.Count == tm.Count);
             foreach (String k in tm.Keys)
@@ -475,7 +475,7 @@ namespace spinat.dotnetplsqltests
             byte[] b = new byte[] { 1, 2, 3, 4, 76, 97 };
             args["X"] = b;
             args["SIZEE"] = b.Length;
-            var res = p.call("p1.praw", args);
+            var res = p.Call("p1.praw", args);
             byte[] b2 = (byte[])res["Y"];
             Assert.True(b2.Length == b.Length);
             for (int i = 0; i < b2.Length; i++)
@@ -493,13 +493,13 @@ namespace spinat.dotnetplsqltests
             byte[] b = new byte[0];
             args["X"] = b;
             args["SIZEE"] = b.Length;
-            var res = p.call("p1.praw", args);
+            var res = p.Call("p1.praw", args);
             byte[] b2 = (byte[])res["Y"];
             Assert.True(b2 == null);
             //
             args["X"] = null;
             args["SIZEE"] = null;
-            var res2 = p.call("p1.praw", args);
+            var res2 = p.Call("p1.praw", args);
             byte[] b22 = (byte[])res["Y"];
             Assert.True(b22 == null);
         }
@@ -517,7 +517,7 @@ namespace spinat.dotnetplsqltests
             }
             args["X"] = b;
             args["SIZEE"] = b.Length;
-            var res = p.call("p1.praw", args);
+            var res = p.Call("p1.praw", args);
             byte[] b2 = (byte[])res["Y"];
             Assert.AreEqual(b2.Length, b.Length);
             for (int i = 0; i < b2.Length; i++)
@@ -544,7 +544,7 @@ namespace spinat.dotnetplsqltests
             String s = new String(b);
             args["X"] = s;
             args["SIZEE"] = s.Length;
-            var res = p.call("p1.pvarchar2", args);
+            var res = p.Call("p1.pvarchar2", args);
             var s2 = (string)res["Y"];
             Assert.AreEqual(s.Length, s2.Length);
             for (int i = 0; i < s2.Length; i++)
@@ -560,7 +560,7 @@ namespace spinat.dotnetplsqltests
             String s = "roland";
             args["X"] = s;
             args["SIZEE"] = s.Length;
-            var res = p.call("p1.pvarchar2", args);
+            var res = p.Call("p1.pvarchar2", args);
             var s2 = (string)res["Y"];
             Assert.AreEqual(s.Length, s2.Length);
             for (int i = 0; i < s2.Length; i++)
@@ -574,7 +574,7 @@ namespace spinat.dotnetplsqltests
         {
             ProcedureCaller p = new ProcedureCaller(connection);
             var box = new Box<object>();
-            p.callPositional("p1.varchar2_out",new Object[]{box});
+            p.CallPositional("p1.varchar2_out",new Object[]{box});
             // we get "" instead of null! Thr eturn value is  chr(0)||'roland'
             // and the oci code cuts this off c strings?
             Assert.AreEqual("", (string)box.value);
