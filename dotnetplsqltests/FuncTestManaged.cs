@@ -356,13 +356,16 @@ namespace spinat.dotnetplsqltests
             ProcedureCaller p = new ProcedureCaller(connection);
             Box<Object> b = new Box<Object>();
             var dat = new DateTime(2001, 12, 1);
-            p.CallPositional("p1.pcursor1", 17, "xyz", dat, b);
+            var bytes = new byte[] { 1, 2, 0, 4, 5, 255 };
+            p.CallPositional("p1.pcursor1", 17, "xyz", dat, bytes, b);
             var l = (List<Dictionary<String, Object>>)b.value;
             Assert.AreEqual(l.Count, 2);
             var r2 = l[1];
             Assert.AreEqual(r2["A"], "xyz");
             Assert.AreEqual(r2["B"], new decimal(17));
             Assert.AreEqual(r2["C"], dat);
+            Assert.AreEqual(r2["D"], bytes);
+
         }
         [Test]
         public void TestSysRefCursorAsDataTable()
@@ -371,13 +374,15 @@ namespace spinat.dotnetplsqltests
             p.ReturnRefCursorAsDataTable = true;
             Box<Object> b = new Box<Object>();
             var dat = new DateTime(2001, 12, 1);
-            p.CallPositional("p1.pcursor1", 17, "xyz", dat, b);
+            var bytes = new byte[] { 1, 0, 55, 4, 5 };
+            p.CallPositional("p1.pcursor1", 17, "xyz", dat, bytes, b);
             var tab = (System.Data.DataTable)b.value;
             Assert.AreEqual(tab.Rows.Count, 2);
             var r2 = tab.Rows[1];
             Assert.AreEqual(r2["A"], "xyz");
             Assert.AreEqual(r2["B"], new decimal(17));
             Assert.AreEqual(r2["C"], dat);
+            Assert.AreEqual(r2["D"], bytes);
         }
 
         [Test]
@@ -386,29 +391,35 @@ namespace spinat.dotnetplsqltests
             ProcedureCaller p = new ProcedureCaller(connection);
             Box<Object> b = new Box<Object>();
             DateTime dat = new DateTime(2001, 12, 1);
-            p.CallPositional("p1.pcursor2", 17, "xyz", dat, b);
+            var bytes = new byte[] { 1, 0, 55, 4, 5 };
+            p.CallPositional("p1.pcursor2", 17, "xyz", dat, bytes, b);
             var l = (List<Dictionary<String, Object>>)b.value;
             Assert.AreEqual(l.Count, 2);
             var r2 = l[1];
             Assert.AreEqual(r2["V"], "xyz");
             Assert.AreEqual(r2["N"], new Decimal(17));
             Assert.AreEqual(r2["D"], dat);
+            Assert.AreEqual(r2["R"], bytes);
         }
 
         [Test]
         public void TestRefCursorAsDataTable()
         {
             ProcedureCaller p = new ProcedureCaller(connection);
-            p.ReturnRefCursorAsDataTable = true; 
+            p.ReturnRefCursorAsDataTable = true;
             Box<Object> b = new Box<Object>();
             DateTime dat = new DateTime(2001, 12, 1);
-            p.CallPositional("p1.pcursor2", 17, "xyz", dat, b);
+            var bytes = new byte[] { 1, 0, 55, 4, 5 };
+            p.CallPositional("p1.pcursor2", 17, "xyz", dat, bytes, b);
             var tab = (DataTable)b.value;
             Assert.AreEqual(tab.Rows.Count, 2);
             var r2 = tab.Rows[1];
             Assert.AreEqual(r2["V"], "xyz");
             Assert.AreEqual(r2["N"], new Decimal(17));
             Assert.AreEqual(r2["D"], dat);
+            Assert.AreEqual(r2["R"], bytes);
+
+
         }
 
         [Test]
@@ -438,7 +449,7 @@ namespace spinat.dotnetplsqltests
             p.CallPositional("p1.exec_query", "select to_number(null) as a,'' as b, to_date(null) as c, hextoraw('') as d from dual", b);
             var t = (DataTable)b.value;
             Assert.AreEqual(1, t.Rows.Count);
-            Assert.True(t.Rows[0].IsNull(0) && t.Rows[0].IsNull(1) && t.Rows[0].IsNull(2) &&  t.Rows[0].IsNull(3));
+            Assert.True(t.Rows[0].IsNull(0) && t.Rows[0].IsNull(1) && t.Rows[0].IsNull(2) && t.Rows[0].IsNull(3));
         }
 
         [Test]
@@ -451,7 +462,7 @@ namespace spinat.dotnetplsqltests
             var t = (DataTable)b.value;
             Assert.AreEqual(1, t.Rows.Count);
             var bytes = (byte[])t.Rows[0][0];
-            Assert.AreEqual(bytes, new byte[] { 10, 11, 0,255 });
+            Assert.AreEqual(bytes, new byte[] { 10, 11, 0, 255 });
         }
 
         [Test]

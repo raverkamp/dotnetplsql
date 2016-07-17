@@ -60,14 +60,12 @@ namespace spinat.dotnetplsqltests
 
         static void SysRefCursorTests()
         {
-            var x = new FuncTestManaged();
+            var x = new FuncTest();
             x.setUp();
             x.TestSysRefCursor();
-            x.TestSysRefCursorAsDataTable();
+           
             x.TestRefCursor();
-            x.TestRefCursorAsDataTable();
-            x.TestRefCursor4();
-            x.TestRefCursor5();
+           
         }
     }
 }

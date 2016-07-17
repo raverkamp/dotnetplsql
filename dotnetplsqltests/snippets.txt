@@ -34,13 +34,13 @@ procedure raise_error(errnum integer,txt varchar2);
 
 procedure no_args;
 
-procedure pcursor1 (n number,v varchar2,d date,c out sys_refcursor);
+procedure pcursor1 (n number,v varchar2,d date,r raw,c out sys_refcursor);
 
-type refcursor_rec is record (n number,v varchar2(200),d date);
+type refcursor_rec is record (n number,v varchar2(200),d date,r raw(200));
 
 TYPE return_cur IS REF CURSOR RETURN refcursor_rec;
 
-procedure pcursor2(n number,v varchar2,d date,c out return_cur);
+procedure pcursor2(n number,v varchar2,d date, r raw,c out return_cur);
 
 type return_cur2 is ref cursor return all_tables%rowtype;
 
@@ -147,17 +147,17 @@ begin
  null;
 end;
 
-procedure pcursor1 (n number,v varchar2,d date,c out sys_refcursor) is
+procedure pcursor1 (n number,v varchar2,d date,r raw, c out sys_refcursor) is
 begin
-  open c for select 'a' as a,1 as b, date '2001-1-5' as c from dual
-                  union all select v,n,d from dual;
+  open c for select 'a' as a,1 as b, date '2001-1-5' as c, hextoraw('000a') as d from dual
+                  union all select v,n,d,r from dual;
 end;
 
-procedure pcursor2(n number,v varchar2,d date,c out return_cur) is
+procedure pcursor2(n number,v varchar2,d date,r  raw, c out return_cur) is
 
 begin
-  open c for select 1 as n,'a' as v, date '2001-1-5' as d from dual
-                  union all select n,v,d from dual;
+  open c for select 1 as n,'a' as v, date '2001-1-5' as d,hextoraw('000a') as r  from dual
+                  union all select n,v,d,r from dual;
 end;
 
 procedure pcursor3(c out return_cur2) is

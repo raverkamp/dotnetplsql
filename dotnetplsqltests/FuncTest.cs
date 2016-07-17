@@ -355,13 +355,15 @@ namespace spinat.dotnetplsqltests
             ProcedureCaller p = new ProcedureCaller(connection);
             Box<Object> b = new Box<Object>();
             var dat = new DateTime(2001, 12, 1);
-            p.CallPositional("p1.pcursor1", 17, "xyz", dat, b);
+            var bytes = new byte[] { 1, 2, 0, 4, 5, 255 };
+            p.CallPositional("p1.pcursor1", 17, "xyz", dat, bytes, b);
             var l = (List<Dictionary<String, Object>>)b.value;
             Assert.AreEqual(l.Count, 2);
             var r2 = l[1];
             Assert.AreEqual(r2["A"], "xyz");
             Assert.AreEqual(r2["B"], new decimal(17));
             Assert.AreEqual(r2["C"], dat);
+            Assert.AreEqual(bytes,r2["D"]);
         }
 
         [Test]
@@ -370,13 +372,16 @@ namespace spinat.dotnetplsqltests
             ProcedureCaller p = new ProcedureCaller(connection);
             Box<Object> b = new Box<Object>();
             DateTime dat = new DateTime(2001, 12, 1);
-            p.CallPositional("p1.pcursor2", 17, "xyz", dat, b);
+            var bytes = new byte[] { 1, 2, 0, 4, 5, 255 };
+            p.CallPositional("p1.pcursor2", 17, "xyz", dat,bytes, b);
             var l = (List<Dictionary<String, Object>>)b.value;
             Assert.AreEqual(l.Count, 2);
             var r2 = l[1];
             Assert.AreEqual(r2["V"], "xyz");
             Assert.AreEqual(r2["N"], new Decimal(17));
             Assert.AreEqual(r2["D"], dat);
+            Assert.AreEqual(r2["R"], bytes);
+
         }
 
         [Test]

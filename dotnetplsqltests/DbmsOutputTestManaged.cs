@@ -54,7 +54,7 @@ namespace spinat.dotnetplsqltests
         public void TestOutputBig()
         {
             // this is slow with 1e6 line almost 30 sec.
-            int n = 1000000;
+            int n = 1000;
             DbmsOutput.DisableDbmsOutput(this.connection);
             DbmsOutput.EnableDbmsOutput(this.connection, -1); // 1e6
             using (var cmd = this.connection.CreateCommand())

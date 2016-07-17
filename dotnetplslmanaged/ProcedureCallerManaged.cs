@@ -1258,6 +1258,10 @@ namespace spinat.dotnetplslmanaged
                         {
                             o = a.readDateTime();
                         }
+                        else if (t.Equals("R"))
+                        {
+                            o = a.readRaw();
+                        }
                         else
                         {
                             throw new ApplicationException("unknwon column type: " + t);

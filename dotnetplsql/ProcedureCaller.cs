@@ -1158,6 +1158,10 @@ namespace spinat.dotnetplsql
                         {
                             o = a.readDateTime();
                         }
+                        else if (t.Equals("R"))
+                        {
+                            o = a.readRaw();
+                        }
                         else
                         {
                             throw new ApplicationException("unknwon column type: " + t);
@@ -1175,9 +1179,11 @@ namespace spinat.dotnetplsql
                 throw new ApplicationException("sys_refcursor may not be an \"IN\" or \"IN OUT\" parameter");
             }
 
-
             public override void genWriteThing(StringBuilder sb, AtomicInteger counter, String source)
             {
+                // OK Type Codes: dbms_types.TYPECODE_???? is wrong, at least for RAW
+                // so manual check:
+                // 23 raw, 2 number, 1, 96 varchar2, 12 date, 100 binary_float, 101 binary_double
                 sb.Append("declare h integer;\n");
                 sb.Append(" t varchar2(100);\n");
                 sb.Append(" rec_tab   DBMS_SQL.DESC_TAB;\n");
@@ -1185,6 +1191,7 @@ namespace spinat.dotnetplsql
                 sb.Append(" x number;\n");
                 sb.Append("num number;\n");
                 sb.Append("dat date;\n");
+                sb.Append("raww raw(32767);\n");
                 sb.Append("varc varchar2(4000);\n");
                 sb.Append(" col_cnt integer;\n");
                 sb.Append("begin\n");
@@ -1194,15 +1201,19 @@ namespace spinat.dotnetplsql
                 sb.Append(" for i in 1 .. rec_tab.last loop\n");
                 sb.Append("  rec := rec_tab(i);\n");
                 sb.Append("  av.extend; av(av.last):= rec.col_name;\n");
-                sb.Append("if rec.col_type = dbms_types.TYPECODE_Date then\n");
+                sb.Append("if rec.col_type = 12 then\n");
                 sb.Append("        dbms_sql.define_column(h, i, dat);\n");
                 sb.Append(" t:=t||'D';\n");
-                sb.Append("elsif rec.col_type = dbms_types.TYPECODE_NUMBER then\n");
+                sb.Append("elsif rec.col_type = 2 then\n");
                 sb.Append("        dbms_sql.define_column(h, i, num);\n");
                 sb.Append(" t:=t||'N';\n");
-                sb.Append("else\n");
+                sb.Append("elsif rec.col_type = 23  then\n");
+                sb.Append("        dbms_sql.define_column_raw(h, i, raww,32767);\n");
+                sb.Append(" t:=t||'R';\n");
+                sb.Append("elsif rec.col_type in(1,96)  then\n");
                 sb.Append("        dbms_sql.define_column(h, i, varc, 4000);\n");
                 sb.Append(" t:=t||'V';\n");
+                sb.Append(" else raise_application_error(-20000,'unknown type code for column '|| rec.col_name ||': '|| rec.col_type);");
                 sb.Append("end if;");
                 sb.Append("av.extend;av(av.last):=substr(t,i,1);\n");
                 sb.Append(" end loop;\n");
@@ -1218,6 +1229,9 @@ namespace spinat.dotnetplsql
                 sb.Append("        when 'N' then\n");
                 sb.Append("          DBMS_SQL.COLUMN_VALUE(h, i, num);\n");
                 sb.Append("          an.extend; an(an.last) := num;\n");
+                sb.Append("        when 'R' then\n");
+                sb.Append("          DBMS_SQL.COLUMN_VALUE_raw(h, i, raww);\n");
+                sb.Append("          ar.extend; ar(ar.last) := raww;\n");
                 sb.Append("        when 'V' then\n");
                 sb.Append("          DBMS_SQL.COLUMN_VALUE(h, i, varc);\n");
                 sb.Append("          av.extend; av(av.last) := varc;\n");
