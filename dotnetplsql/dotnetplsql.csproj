@@ -36,7 +36,6 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="Oracle.DataAccess" />
-    <Reference Include="Oracle.Database.Extensions" />
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core">

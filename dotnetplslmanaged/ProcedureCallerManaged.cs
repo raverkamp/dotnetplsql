@@ -389,7 +389,6 @@ namespace spinat.dotnetplslmanaged
             if (r.data_type.Equals("VARCHAR2"))
             {
                 Varchar2Type vt = new Varchar2Type();
-                vt.name = "VARCHAR2";
                 vt.size = r.data_length;
                 f.type = vt;
                 a.Dequeue();
@@ -398,7 +397,6 @@ namespace spinat.dotnetplslmanaged
             if (r.data_type.Equals("RAW"))
             {
                 RawType vt = new RawType();
-                vt.name = "RAW";
                 vt.size = r.data_length;
                 f.type = vt;
                 a.Dequeue();
@@ -532,7 +530,6 @@ namespace spinat.dotnetplslmanaged
             }
             return p;
         }
-
 
         private String createStatementString(Procedure p)
         {
@@ -677,8 +674,6 @@ namespace spinat.dotnetplslmanaged
             using (OracleCommand cstm = this.connection.CreateCommand())
             {
                 cstm.CommandText = p.plsqlstatement;
-
-
                 {
                     OracleParameter pa = cstm.CreateParameter();
                     pa.ParameterName = "P1";
@@ -696,7 +691,6 @@ namespace spinat.dotnetplslmanaged
                     }
                     cstm.Parameters.Add(pa);
                 }
-
                 {
                     OracleParameter pa = cstm.CreateParameter();
                     pa.ParameterName = "P2";
@@ -714,7 +708,6 @@ namespace spinat.dotnetplslmanaged
                     }
                     cstm.Parameters.Add(pa);
                 }
-
                 {
                     OracleParameter pa = cstm.CreateParameter();
                     pa.ParameterName = "P3";
@@ -750,7 +743,6 @@ namespace spinat.dotnetplslmanaged
                     }
                     cstm.Parameters.Add(pa);
                 }
-
 
                 //---------------------------------------------
                 {
