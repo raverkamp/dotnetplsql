@@ -66,6 +66,8 @@ namespace spinat.dotnetplsqltests
             x.TestSysRefCursorAsDataTable();
             x.TestRefCursor();
             x.TestRefCursorAsDataTable();
+            x.TestRefCursor4();
+            x.TestRefCursor5();
         }
     }
 }

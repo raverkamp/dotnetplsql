@@ -430,6 +430,31 @@ namespace spinat.dotnetplsqltests
         }
 
         [Test]
+        public void TestRefCursor4()
+        {
+            var p = new ProcedureCaller(connection);
+            p.ReturnRefCursorAsDataTable = true;
+            var b = new Box<object>();
+            p.callPositional("p1.exec_query", "select to_number(null) as a,'' as b, to_date(null) as c, hextoraw('') as d from dual", b);
+            var t = (DataTable)b.value;
+            Assert.AreEqual(1, t.Rows.Count);
+            Assert.True(t.Rows[0].IsNull(0) && t.Rows[0].IsNull(1) && t.Rows[0].IsNull(2) &&  t.Rows[0].IsNull(3));
+        }
+
+        [Test]
+        public void TestRefCursor5()
+        {
+            var p = new ProcedureCaller(connection);
+            p.ReturnRefCursorAsDataTable = true;
+            var b = new Box<object>();
+            p.callPositional("p1.exec_query", "select hextoraw('0a0b00ff') as a from dual", b);
+            var t = (DataTable)b.value;
+            Assert.AreEqual(1, t.Rows.Count);
+            var bytes = (byte[])t.Rows[0][0];
+            Assert.AreEqual(bytes, new byte[] { 10, 11, 0,255 });
+        }
+
+        [Test]
         public void TestIndexBy()
         {
             int n = 20;

@@ -46,6 +46,8 @@ type return_cur2 is ref cursor return all_tables%rowtype;
 
 procedure pcursor3(c out return_cur2);
 
+procedure exec_query(s in varchar2,c out sys_refcursor);
+
 type tabv is table of varchar2(200) index by varchar2(200);
 type tabi is table of varchar2(200) index by binary_integer;
 
@@ -163,6 +165,10 @@ begin
   open c for select * from all_tables where rownum <100;
 end;
 
+procedure exec_query(s in varchar2,c out sys_refcursor) is
+begin
+   open c for s;
+end;
 
 procedure pindex_tab(ai tabv,bi tabi,ao out tabv,bo out tabi) is
 xa tabv;

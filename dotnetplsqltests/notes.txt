@@ -5,3 +5,7 @@ set PATH=%PATH%;C:\Program Files (x86)\NUnit.org\nunit-console
 and then cd to the directory of the project dotnetplsqltests
 and then on the commandline
 nunit3-console bin\Debug\dotnetplsqltests.exe
+
+dbms_sql column types
+you have to do experiments to get the correct columns 
+prblems with raw and varchar2, 
