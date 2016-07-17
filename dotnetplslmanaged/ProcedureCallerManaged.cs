@@ -13,7 +13,7 @@ namespace spinat.dotnetplslmanaged
     public class ConversionException : Exception
     {
 
-        public ConversionException(String bla):base(bla)
+        public ConversionException(String msg):base(msg)
         {
 
         }
@@ -581,6 +581,22 @@ namespace spinat.dotnetplslmanaged
             this.effectiveRawTableName = null;
         }
 
+        private Boolean returnRefCursorAsDataTable = false;
+
+        public bool ReturnRefCursorAsDataTable
+        {
+            set
+            {
+                this.returnRefCursorAsDataTable = value;
+                this.procsMap.Clear();
+            }
+
+             get
+            {
+                return this.returnRefCursorAsDataTable;
+            }
+        }
+
         private static String getStringParam(OracleCommand c, String name)
         {
             OracleParameter p = c.Parameters[name];
@@ -804,6 +820,15 @@ namespace spinat.dotnetplslmanaged
                     m[f.name] = o;
                 }
                 return m;
+            }
+            public void readFromResArraysIntoDataRow(ResArrays a,DataRow r)
+            {
+                Dictionary<String, Object> m = new Dictionary<String, Object>();
+                foreach (Field f in this.fields)
+                {
+                    Object o = f.type.readFromResArrays(a);
+                    r[f.name] = o;
+                }
             }
 
 
@@ -1117,15 +1142,85 @@ namespace spinat.dotnetplslmanaged
                 return "sys_refcursor";
             }
 
+            private readonly Boolean returnAsDataTable;
+            public SysRefCursorType(Boolean returnAsDataTable)
+            {
+                this.returnAsDataTable = returnAsDataTable;
+            }
 
             public override void fillArgArrays(ArgArrays a, Object o)
             {
                 throw new ApplicationException("sys_refcursor may not be an \"IN\" or \"IN OUT\" parameter");
             }
 
+            public DataTable ReadAsDataTable(ResArrays a) {
+                int colcount = (int)a.readDecimal();
+                List<String> colnames = new List<String>();
+                List<String> coltypes = new List<String>();
+                var tab = new DataTable();
+                for (int i = 0; i < colcount; i++)
+                {
+                    colnames.Add(a.readString());
+                    coltypes.Add(a.readString());
+                    var col = new DataColumn();
+                    col.ColumnName = colnames[i];
+                    String typ = coltypes[i];
+                    switch (typ)
+                    {
+                        case "N": col.DataType = typeof(Decimal); break;
+                        case "V": col.DataType = typeof(string); break;
+                        case "D": col.DataType = typeof(DateTime); break;
+                        default: throw new ApplicationException("unknwon column type: " + typ);
+                    }
+                    tab.Columns.Add(col);
+                }
+                while (true)
+                {
+                    if ((int)a.readDecimal() == 0)
+                    {
+                        break;
+                    }
+                    var row = tab.NewRow();
+                    for (int i = 0; i < colcount; i++)
+                    {
+                        String t = coltypes[i];
+                        Object o;
+                        if (t.Equals("N"))
+                        {
+                            o = a.readDecimal();
+                        }
+                        else if (t.Equals("V"))
+                        {
+                            o = a.readString();
+                        }
+                        else if (t.Equals("D"))
+                        {
+                            o = a.readDateTime();
+                        }
+                        else
+                        {
+                            throw new ApplicationException("unknwon column type: " + t);
+                        }
+                        if (o == null)
+                        {
+                            row[i] = DBNull.Value;
+                        }
+                        else
+                        {
+                            row[i] = o;
+                        }
+                    }
+                    tab.Rows.Add(row);
+                }
+                return tab;
+            }
 
             public override Object readFromResArrays(ResArrays a)
             {
+                if (this.returnAsDataTable)
+                {
+                    return this.ReadAsDataTable(a);
+                }
                 int colcount = (int)a.readDecimal();
                 List<String> colnames = new List<String>();
                 List<String> coltypes = new List<String>();
@@ -1239,6 +1334,13 @@ namespace spinat.dotnetplslmanaged
             public String name;
             public RecordType rectype;
 
+            private readonly bool returnAsDataTable;
+
+            public TypedRefCursorType(bool returnAsDataTable)
+            {
+                this.returnAsDataTable = returnAsDataTable;
+            }
+
             public override String plsqlName()
             {
                 return "sys_refcursor";
@@ -1250,9 +1352,50 @@ namespace spinat.dotnetplslmanaged
                 throw new ApplicationException("ref cursor may not be an \"IN\" or \"IN OUT\" parameter");
             }
 
+            private DataTable readAsDataTableFromResArray(ResArrays a)
+            {
+                var tab = new DataTable();
+                foreach (Field f in this.rectype.fields)
+                {
+                    var col = new DataColumn(f.name);
+                    if (f.type is Varchar2Type)
+                    {
+                        col.DataType = typeof(string);
+                    } else if (f.type is RawType) {
+                        col.DataType = typeof(byte[]);
+                    } else if (f.type is NamedType) {
+                        var nt = (NamedType) f.type;
+                        if (nt.name.Equals("NUMBER") || nt.name.Equals("INTEGER")||nt.name.Equals("BINARY_INTEGER")) {
+                            col.DataType = typeof(decimal);
+                        } else if (nt.name.Equals("DATE")) {
+                            col.DataType = typeof(DateTime);
+                        } else {
+                           throw new ApplicationException("no support for column type in DataTable: " + f);
+                       }
+                    }  else {
+                        throw new ApplicationException("no support for column type in DataTable: " + f);
+                    }
+                    tab.Columns.Add(col);
+                 }
+                while (true)
+                {
+                    if ((int)a.readDecimal() == 0)
+                    {
+                        break;
+                    }
+                    var row = tab.NewRow();
+                    rectype.readFromResArraysIntoDataRow(a, row);
+                    tab.Rows.Add(row);
+                }
+                return tab;
+            }
 
             public override Object readFromResArrays(ResArrays a)
             {
+                if (this.returnAsDataTable)
+                {
+                    return this.readAsDataTableFromResArray(a);
+                }
                 List<Dictionary<String, Object>> l = new List<Dictionary<String, Object>>();
                 while (true)
                 {
@@ -1468,11 +1611,11 @@ namespace spinat.dotnetplslmanaged
                 a.Dequeue();
                 if (a.Count == 0 || a.Peek().data_level == 0)
                 {
-                    SysRefCursorType t = new SysRefCursorType();
+                    SysRefCursorType t = new SysRefCursorType(this.returnRefCursorAsDataTable);
                     f.type = t;
                     return f;
                 }
-                TypedRefCursorType tr = new TypedRefCursorType();
+                TypedRefCursorType tr = new TypedRefCursorType(this.returnRefCursorAsDataTable);
                 tr.owner = r.type_owner;
                 tr.package_ = r.type_name;
                 tr.name = r.type_subname;

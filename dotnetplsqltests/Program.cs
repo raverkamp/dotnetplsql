@@ -10,7 +10,7 @@ namespace spinat.dotnetplsqltests
         {
             Console.WriteLine("Los gehts!");
             //ErrorTests();
-            DbmsOutputTest();
+            SysRefCursorTests();
             
             Console.Write("Press any key to continue . . . ");
             Console.ReadKey(true);
@@ -50,15 +50,22 @@ namespace spinat.dotnetplsqltests
 
         }
 
-
-
-
         static void DbmsOutputTest()
         {
             var x = new DbmsOutputTestManaged();
             x.setUp();
             x.TestOutput();
             x.TestOutputBig();
+        }
+
+        static void SysRefCursorTests()
+        {
+            var x = new FuncTestManaged();
+            x.setUp();
+            x.TestSysRefCursor();
+            x.TestSysRefCursorAsDataTable();
+            x.TestRefCursor();
+            x.TestRefCursorAsDataTable();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
 using spinat.dotnetplslmanaged;
 using NUnit.Framework;
+using System.Data;
 
 namespace spinat.dotnetplsqltests
 {
@@ -363,6 +364,21 @@ namespace spinat.dotnetplsqltests
             Assert.AreEqual(r2["B"], new decimal(17));
             Assert.AreEqual(r2["C"], dat);
         }
+        [Test]
+        public void TestSysRefCursorAsDataTable()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            p.ReturnRefCursorAsDataTable = true;
+            Box<Object> b = new Box<Object>();
+            var dat = new DateTime(2001, 12, 1);
+            p.callPositional("p1.pcursor1", 17, "xyz", dat, b);
+            var tab = (System.Data.DataTable)b.value;
+            Assert.AreEqual(tab.Rows.Count, 2);
+            var r2 = tab.Rows[1];
+            Assert.AreEqual(r2["A"], "xyz");
+            Assert.AreEqual(r2["B"], new decimal(17));
+            Assert.AreEqual(r2["C"], dat);
+        }
 
         [Test]
         public void TestRefCursor()
@@ -374,6 +390,22 @@ namespace spinat.dotnetplsqltests
             var l = (List<Dictionary<String, Object>>)b.value;
             Assert.AreEqual(l.Count, 2);
             var r2 = l[1];
+            Assert.AreEqual(r2["V"], "xyz");
+            Assert.AreEqual(r2["N"], new Decimal(17));
+            Assert.AreEqual(r2["D"], dat);
+        }
+
+        [Test]
+        public void TestRefCursorAsDataTable()
+        {
+            ProcedureCaller p = new ProcedureCaller(connection);
+            p.ReturnRefCursorAsDataTable = true; 
+            Box<Object> b = new Box<Object>();
+            DateTime dat = new DateTime(2001, 12, 1);
+            p.callPositional("p1.pcursor2", 17, "xyz", dat, b);
+            var tab = (DataTable)b.value;
+            Assert.AreEqual(tab.Rows.Count, 2);
+            var r2 = tab.Rows[1];
             Assert.AreEqual(r2["V"], "xyz");
             Assert.AreEqual(r2["N"], new Decimal(17));
             Assert.AreEqual(r2["D"], dat);
