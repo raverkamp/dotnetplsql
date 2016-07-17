@@ -72,13 +72,13 @@ namespace spinat.dotnetplsqltests
         {
 
             ProcedureCaller p = new ProcedureCaller(connection);
-            var xo = new Box<Object>();
-            var yo = new Box<Object>();
-            var zo = new Box<Object>();
+            var xo = new Box();
+            var yo = new Box();
+            var zo = new Box();
 
             p.CallPositional("P1.P", 12, "x", DateTime.Now, xo, yo, zo);
-            Assert.AreEqual(xo.value, new decimal(13));
-            Assert.AreEqual(yo.value, "xx");
+            Assert.AreEqual(xo.Value, new decimal(13));
+            Assert.AreEqual(yo.Value, "xx");
         }
 
         [Test]
@@ -104,9 +104,9 @@ namespace spinat.dotnetplsqltests
             a["Y"] = "x";
             a["Z"] = DateTime.Now;
             ProcedureCaller p = new ProcedureCaller(connection);
-            Box<Object> b = new Box<Object>();
+            Box b = new Box();
             p.CallPositional("P1.P2", a, b);
-            Dictionary<String, Object> m = (Dictionary<String, Object>)b.value;
+            Dictionary<String, Object> m = (Dictionary<String, Object>)b.Value;
             Assert.AreEqual(m["X"], new Decimal(13));
             Assert.AreEqual(m["Y"], "xx");
         }
@@ -202,9 +202,9 @@ namespace spinat.dotnetplsqltests
             a["X"] = null;
             a["Y"] = null;
             a["Z"] = null;
-            Box<Object> b = new Box<Object>();
+            Box b = new Box();
             new ProcedureCaller(connection).CallPositional("P1.P2", a, b);
-            var m = (Dictionary<String, Object>)b.value;
+            var m = (Dictionary<String, Object>)b.Value;
             Assert.IsNull(m["X"]);
             Assert.IsNull(m["Y"]);
         }
@@ -304,7 +304,7 @@ namespace spinat.dotnetplsqltests
         //[Test]
         //public void testTableNull()
         //{
-        //    Box<Object> b = new Box<Object>();
+        //    Box b = new Box();
         //    ProcedureCaller p = new ProcedureCaller(connection);
         //    p.callPositional("p1.p5", null, b);
         //    Assert.Null(b.value);
@@ -354,11 +354,11 @@ namespace spinat.dotnetplsqltests
         public void TestSysRefCursor()
         {
             ProcedureCaller p = new ProcedureCaller(connection);
-            Box<Object> b = new Box<Object>();
+            Box b = new Box();
             var dat = new DateTime(2001, 12, 1);
             var bytes = new byte[] { 1, 2, 0, 4, 5, 255 };
             p.CallPositional("p1.pcursor1", 17, "xyz", dat, bytes, b);
-            var l = (List<Dictionary<String, Object>>)b.value;
+            var l = (List<Dictionary<String, Object>>)b.Value;
             Assert.AreEqual(l.Count, 2);
             var r2 = l[1];
             Assert.AreEqual(r2["A"], "xyz");
@@ -372,11 +372,11 @@ namespace spinat.dotnetplsqltests
         {
             ProcedureCaller p = new ProcedureCaller(connection);
             p.ReturnRefCursorAsDataTable = true;
-            Box<Object> b = new Box<Object>();
+            Box b = new Box();
             var dat = new DateTime(2001, 12, 1);
             var bytes = new byte[] { 1, 0, 55, 4, 5 };
             p.CallPositional("p1.pcursor1", 17, "xyz", dat, bytes, b);
-            var tab = (System.Data.DataTable)b.value;
+            var tab = (System.Data.DataTable)b.Value;
             Assert.AreEqual(tab.Rows.Count, 2);
             var r2 = tab.Rows[1];
             Assert.AreEqual(r2["A"], "xyz");
@@ -389,11 +389,11 @@ namespace spinat.dotnetplsqltests
         public void TestRefCursor()
         {
             ProcedureCaller p = new ProcedureCaller(connection);
-            Box<Object> b = new Box<Object>();
+            Box b = new Box();
             DateTime dat = new DateTime(2001, 12, 1);
             var bytes = new byte[] { 1, 0, 55, 4, 5 };
             p.CallPositional("p1.pcursor2", 17, "xyz", dat, bytes, b);
-            var l = (List<Dictionary<String, Object>>)b.value;
+            var l = (List<Dictionary<String, Object>>)b.Value;
             Assert.AreEqual(l.Count, 2);
             var r2 = l[1];
             Assert.AreEqual(r2["V"], "xyz");
@@ -407,11 +407,11 @@ namespace spinat.dotnetplsqltests
         {
             ProcedureCaller p = new ProcedureCaller(connection);
             p.ReturnRefCursorAsDataTable = true;
-            Box<Object> b = new Box<Object>();
+            Box b = new Box();
             DateTime dat = new DateTime(2001, 12, 1);
             var bytes = new byte[] { 1, 0, 55, 4, 5 };
             p.CallPositional("p1.pcursor2", 17, "xyz", dat, bytes, b);
-            var tab = (DataTable)b.value;
+            var tab = (DataTable)b.Value;
             Assert.AreEqual(tab.Rows.Count, 2);
             var r2 = tab.Rows[1];
             Assert.AreEqual(r2["V"], "xyz");
@@ -426,7 +426,7 @@ namespace spinat.dotnetplsqltests
         public void TestRefCursor3()
         {
             ProcedureCaller p = new ProcedureCaller(connection);
-            Box<Object> b = new Box<Object>();
+            Box b = new Box();
             Exception ex = null;
             try
             {
@@ -445,9 +445,9 @@ namespace spinat.dotnetplsqltests
         {
             var p = new ProcedureCaller(connection);
             p.ReturnRefCursorAsDataTable = true;
-            var b = new Box<object>();
+            var b = new Box();
             p.CallPositional("p1.exec_query", "select to_number(null) as a,'' as b, to_date(null) as c, hextoraw('') as d from dual", b);
-            var t = (DataTable)b.value;
+            var t = (DataTable)b.Value;
             Assert.AreEqual(1, t.Rows.Count);
             Assert.True(t.Rows[0].IsNull(0) && t.Rows[0].IsNull(1) && t.Rows[0].IsNull(2) && t.Rows[0].IsNull(3));
         }
@@ -457,9 +457,9 @@ namespace spinat.dotnetplsqltests
         {
             var p = new ProcedureCaller(connection);
             p.ReturnRefCursorAsDataTable = true;
-            var b = new Box<object>();
+            var b = new Box();
             p.CallPositional("p1.exec_query", "select hextoraw('0a0b00ff') as a from dual", b);
-            var t = (DataTable)b.value;
+            var t = (DataTable)b.Value;
             Assert.AreEqual(1, t.Rows.Count);
             var bytes = (byte[])t.Rows[0][0];
             Assert.AreEqual(bytes, new byte[] { 10, 11, 0, 255 });
@@ -622,13 +622,13 @@ namespace spinat.dotnetplsqltests
         public void testVarcharout()
         {
             ProcedureCaller p = new ProcedureCaller(connection);
-            var box = new Box<object>();
+            var box = new Box();
             p.CallPositional("p1.varchar2_out", new Object[] { box });
             // on the oci style:
             // we get "" instead of null! Thr eturn value is  chr(0)||'roland'
             // and the oci code cuts this off c strings?
             // we are using managed, so everything is correct
-            Assert.AreEqual("\0roland", (string)box.value);
+            Assert.AreEqual("\0roland", (string)box.Value);
         }
     }
 }

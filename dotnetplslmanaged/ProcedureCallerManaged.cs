@@ -19,23 +19,37 @@ namespace spinat.dotnetplslmanaged
         }
     }
 
-    public class Box<X>
-    {
 
-        public X value;
+    public class Box
+    {
+        private Object value;
+
+        public Object Value
+        {
+            set
+            {
+                this.value = value;
+            }
+            get
+            {
+                return this.value;
+            }
+        }
 
         public Box()
         {
-            this.value = default(X);
+            this.value = null;
         }
 
-        public Box(X x)
+        public Box(Object x)
         {
             this.value = x;
         }
+
     }
 
-    public class AtomicInteger
+
+    public class Counter
     {
         int x = 0;
         public int incrementAndGet()
@@ -222,12 +236,12 @@ namespace spinat.dotnetplslmanaged
         // there is no concurrency involved we just need a box with an integer
         // the generated pl/SQL block should only depend should depend deterministically
         // on the procedure arguments. We do not want to blow up the statement cache
-        public abstract void genReadOutThing(System.Text.StringBuilder sb, AtomicInteger counter, String target);
+        public abstract void genReadOutThing(System.Text.StringBuilder sb, Counter counter, String target);
 
         // generate the PL/SQL code to write the data from the OUT and IN/OUT 
         // and the return value to the three arrays
         // the reason for the AtomicInteger is the same as above
-        public abstract void genWriteThing(System.Text.StringBuilder sb, AtomicInteger counter, String source);
+        public abstract void genWriteThing(System.Text.StringBuilder sb, Counter counter, String source);
 
     }
 
@@ -314,7 +328,7 @@ namespace spinat.dotnetplslmanaged
         }
 
 
-        public override void genWriteThing(System.Text.StringBuilder sb, AtomicInteger counter, String source)
+        public override void genWriteThing(System.Text.StringBuilder sb, Counter counter, String source)
         {
             if (this.name.Equals("NUMBER")
                     || this.name.Equals("INTEGER")
@@ -337,7 +351,7 @@ namespace spinat.dotnetplslmanaged
         }
 
 
-        public override void genReadOutThing(StringBuilder sb, AtomicInteger counter, String target)
+        public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
         {
             if (this.name.Equals("NUMBER")
                     || this.name.Equals("INTEGER")
@@ -408,13 +422,13 @@ namespace spinat.dotnetplslmanaged
         }
 
 
-        public override void genWriteThing(StringBuilder sb, AtomicInteger counter, String source)
+        public override void genWriteThing(StringBuilder sb, Counter counter, String source)
         {
             sb.Append("av.extend; av(av.last) := " + source + ";\n");
         }
 
 
-        public override void genReadOutThing(StringBuilder sb, AtomicInteger counter, String target)
+        public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
         {
             sb.Append(target).Append(":= av(inv); inv := inv+1;\n");
         }
@@ -469,13 +483,13 @@ namespace spinat.dotnetplslmanaged
         }
 
 
-        public override void genWriteThing(StringBuilder sb, AtomicInteger counter, String source)
+        public override void genWriteThing(StringBuilder sb, Counter counter, String source)
         {
             sb.Append("ar.extend; ar(ar.last) := " + source + ";\n");
         }
 
 
-        public override void genReadOutThing(StringBuilder sb, AtomicInteger counter, String target)
+        public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
         {
             sb.Append(target).Append(":= ar(inr); inr := inr+1;\n");
         }
@@ -832,7 +846,7 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genWriteThing(StringBuilder sb, AtomicInteger counter, String source)
+            public override void genWriteThing(StringBuilder sb, Counter counter, String source)
             {
                 foreach (Field f in this.fields)
                 {
@@ -842,7 +856,7 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genReadOutThing(StringBuilder sb, AtomicInteger counter, String target)
+            public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
             {
                 foreach (Field f in this.fields)
                 {
@@ -906,7 +920,7 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genWriteThing(StringBuilder sb, AtomicInteger counter, String source)
+            public override void genWriteThing(StringBuilder sb, Counter counter, String source)
             {
                 sb.Append("an.extend;\n");
                 sb.Append(" if " + source + " is null then\n");
@@ -921,7 +935,7 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genReadOutThing(StringBuilder sb, AtomicInteger counter, String target)
+            public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
             {
                 sb.Append("size_ := an(inn); inn:= inn+1;\n");
                 sb.Append("if size_ is null then\n");
@@ -994,7 +1008,7 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genWriteThing(StringBuilder sb, AtomicInteger counter, String source)
+            public override void genWriteThing(StringBuilder sb, Counter counter, String source)
             {
                 sb.Append("  an.extend;\n");
                 sb.Append("  an(an.last) := " + source + ".count;\n");
@@ -1011,7 +1025,7 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genReadOutThing(StringBuilder sb, AtomicInteger counter, String target)
+            public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
             {
                 sb.Append("size_ := an(inn); inn:= inn+1;\n");
                 sb.Append("if size_ is null then\n");
@@ -1086,7 +1100,7 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genWriteThing(StringBuilder sb, AtomicInteger counter, String source)
+            public override void genWriteThing(StringBuilder sb, Counter counter, String source)
             {
                 sb.Append("  an.extend;\n");
                 sb.Append("  an(an.last) := " + source + ".count;\n");
@@ -1104,7 +1118,7 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genReadOutThing(StringBuilder sb, AtomicInteger counter, String target)
+            public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
             {
                 sb.Append("size_ := an(inn); inn:= inn+1;\n");
                 sb.Append("if size_ is null then\n");
@@ -1274,13 +1288,13 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genReadOutThing(StringBuilder sb, AtomicInteger counter, String target)
+            public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
             {
                 throw new ApplicationException("sys_refcursor may not be an \"IN\" or \"IN OUT\" parameter");
             }
 
 
-            public override void genWriteThing(StringBuilder sb, AtomicInteger counter, String source)
+            public override void genWriteThing(StringBuilder sb, Counter counter, String source)
             {
                 // OK Type Codes: dbms_types.TYPECODE_???? is wrong, at least for RAW
                 // so manual check:
@@ -1430,13 +1444,13 @@ namespace spinat.dotnetplslmanaged
             }
 
 
-            public override void genReadOutThing(StringBuilder sb, AtomicInteger counter, String target)
+            public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
             {
                 throw new ApplicationException("ref cursor may not be an \"IN\" or \"IN OUT\" parameter");
             }
 
 
-            public override void genWriteThing(StringBuilder sb, AtomicInteger counter, String source)
+            public override void genWriteThing(StringBuilder sb, Counter counter, String source)
             {
                 sb.Append("declare r " + rectype.plsqlName() + ";\n");
                 sb.Append("x integer;\n");
@@ -1799,7 +1813,7 @@ namespace spinat.dotnetplslmanaged
                            end if;
 ");
 
-            AtomicInteger counter = new AtomicInteger();
+            Counter counter = new Counter();
             for (int i = 0; i < p.arguments.Count; i++)
             {
                 Argument a = p.arguments[i];
@@ -2148,9 +2162,9 @@ namespace spinat.dotnetplslmanaged
                     if (!arg.direction.Equals("OUT"))
                     {
                         Object o = args[i];
-                        if (o is Box<Object>)
+                        if (o is Box)
                         {
-                            o = ((Box<Object>)o).value;
+                            o = ((Box)o).Value;
                         }
                         arg.type.fillArgArrays(aa, o);
                     }
@@ -2174,10 +2188,10 @@ namespace spinat.dotnetplslmanaged
                     if (!arg.direction.Equals("IN"))
                     {
 
-                        if (args[i] != null && args[i] is Box<Object>)
+                        if (args[i] != null && args[i] is Box)
                         {
                             Object o = arg.type.readFromResArrays(ra);
-                            ((Box<Object>)args[i]).value = o;
+                            ((Box)args[i]).Value = o;
                         }
                         else
                         {
