@@ -4,3 +4,6 @@ It seems one character is cut off.
 
 I am suprised that values of that length are possible, after all the values are retrieved 
 via ref cursor. I would have expected a limit of 4000 bytes.
+
+Managed Driver
+for index by tables: at least one value!

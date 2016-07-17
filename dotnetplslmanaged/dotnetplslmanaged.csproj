@@ -7,7 +7,7 @@
     <ProjectGuid>{D97EEE8E-F79E-4509-A60D-63534F242C9A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>dotnetplslmanaged</RootNamespace>
+    <RootNamespace>spinat.dotnetplslmanaged</RootNamespace>
     <AssemblyName>dotnetplslmanaged</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -42,9 +42,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Box.cs" />
+    <Compile Include="ConversionException.cs" />
     <Compile Include="DbmsOutput.cs" />
+    <Compile Include="PLSQLTypes.cs" />
     <Compile Include="ProcedureCallerManaged.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resolver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
