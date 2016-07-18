@@ -558,6 +558,11 @@ namespace spinat.dotnetplslmanaged
             sb.Append("function getv return varchar2 is begin inv:=inv+1; return av_ibt(inv-1);end;\n");
             sb.Append("function getd return date is begin ind:=ind+1; return ad_ibt(ind-1);end;\n");
             sb.Append("function getr return raw is begin inr:=inr+1; return ar_ibt(inr-1);end;\n");
+
+            sb.Append("procedure putn(x number) is begin an.extend; an(an.last):= x; end;\n");
+            sb.Append("procedure putv(x varchar2) is begin av.extend; av(av.last):= x; end;\n");
+            sb.Append("procedure putd(x date) is begin ad.extend; ad(ad.last):= x; end;\n");
+            sb.Append("procedure putr(x raw) is begin ar.extend; ar(ar.last):= x; end;\n");
             sb.Append("begin\n");
 
             sb.Append("an_ibt :=:p1;\n");

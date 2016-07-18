@@ -126,15 +126,15 @@ namespace spinat.dotnetplslmanaged
                     || this.name.Equals("INTEGER")
                     || this.name.Equals("BINARY_INTEGER"))
             {
-                sb.Append("an.extend; an(an.last):= " + source + ";\n");
+                sb.Append("putn(" + source + ");\n");
             }
             else if (this.name.Equals("DATE"))
             {
-                sb.Append("ad.extend; ad(ad.last):= " + source + ";\n");
+                sb.Append("putd( " + source + ");\n");
             }
             else if (this.name.Equals("PL/SQL BOOLEAN"))
             {
-                sb.Append("an.extend; an(an.last):= case when " + source + " then 1 when not " + source + " then 0 else null end;\n");
+                sb.Append("putn(case when " + source + " then 1 when not " + source + " then 0 else null end);\n");
             }
             else
             {
@@ -213,7 +213,7 @@ namespace spinat.dotnetplslmanaged
 
         public override void genWriteThing(StringBuilder sb, Counter counter, String source)
         {
-            sb.Append("av.extend; av(av.last) := " + source + ";\n");
+            sb.Append("putv(" + source + ");\n");
         }
 
         public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
@@ -268,7 +268,7 @@ namespace spinat.dotnetplslmanaged
 
         public override void genWriteThing(StringBuilder sb, Counter counter, String source)
         {
-            sb.Append("ar.extend; ar(ar.last) := " + source + ";\n");
+            sb.Append("putr(" + source + ");\n");
         }
 
         public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
@@ -408,11 +408,10 @@ namespace spinat.dotnetplslmanaged
 
         public override void genWriteThing(StringBuilder sb, Counter counter, String source)
         {
-            sb.Append("an.extend;\n");
             sb.Append(" if " + source + " is null then\n");
-            sb.Append("    an(an.last) := null;\n");
+            sb.Append("    putn(null);\n");
             sb.Append("else \n");
-            sb.Append("  an(an.last) := nvl(" + source + ".last, 0);\n");
+            sb.Append("  putn(nvl(" + source + ".last, 0));\n");
             String index = "i" + counter.incrementAndGet();
             sb.Append("for " + index + " in 1 .. nvl(" + source + ".last,0) loop\n");
             this.slottype.genWriteThing(sb, counter, source + "(" + index + ")");
@@ -492,14 +491,13 @@ namespace spinat.dotnetplslmanaged
 
         public override void genWriteThing(StringBuilder sb, Counter counter, String source)
         {
-            sb.Append("  an.extend;\n");
-            sb.Append("  an(an.last) := " + source + ".count;\n");
+            sb.Append("  putn(" + source + ".count);\n");
             String index = "i" + counter.incrementAndGet();
             sb.Append("declare " + index + " varchar2(32000) := " + source + ".first;\n");
             sb.Append("begin\n");
             sb.Append(" loop\n");
             sb.Append("exit when " + index + " is null;\n");
-            sb.Append("  av.extend; av(av.last) := " + index + ";\n");
+            sb.Append("  putv(" + index + ");\n");
             this.slottype.genWriteThing(sb, counter, source + "(" + index + ")");
             sb.Append(" " + index + " := " + source + ".next(" + index + ");\n");
             sb.Append("end loop;\n");
@@ -579,15 +577,14 @@ namespace spinat.dotnetplslmanaged
 
         public override void genWriteThing(StringBuilder sb, Counter counter, String source)
         {
-            sb.Append("  an.extend;\n");
-            sb.Append("  an(an.last) := " + source + ".count;\n");
+            sb.Append("  putn( " + source + ".count);\n");
 
             String index = "i" + counter.incrementAndGet();
             sb.Append("declare " + index + " integer := " + source + ".first;\n");
             sb.Append("begin\n");
             sb.Append(" loop\n");
             sb.Append("exit when " + index + " is null;\n");
-            sb.Append("  an.extend; an(an.last) := " + index + ";\n");
+            sb.Append("  putn(" + index + ");\n");
             this.slottype.genWriteThing(sb, counter, source + "(" + index + ")");
             sb.Append(" " + index + " := " + source + ".next(" + index + ");\n");
             sb.Append("end loop;\n");
@@ -787,10 +784,10 @@ namespace spinat.dotnetplslmanaged
             sb.Append("begin\n");
             sb.Append(" h := DBMS_SQL.TO_CURSOR_NUMBER (" + source + ");\n");
             sb.Append(" DBMS_SQL.DESCRIBE_COLUMNS(h, col_cnt, rec_tab);\n");
-            sb.Append(" an.extend; an(an.last):= col_cnt;\n");
+            sb.Append(" putn(col_cnt);\n");
             sb.Append(" for i in 1 .. rec_tab.last loop\n");
             sb.Append("  rec := rec_tab(i);\n");
-            sb.Append("  av.extend; av(av.last):= rec.col_name;\n");
+            sb.Append("  putv(rec.col_name);\n");
             sb.Append("if rec.col_type = 12 then\n");
             sb.Append("        dbms_sql.define_column(h, i, dat);\n");
             sb.Append(" t:=t||'D';\n");
@@ -805,31 +802,31 @@ namespace spinat.dotnetplslmanaged
             sb.Append(" t:=t||'V';\n");
             sb.Append(" else raise_application_error(-20000,'unknown type code for column '|| rec.col_name ||': '|| rec.col_type);");
             sb.Append("end if;");
-            sb.Append("av.extend;av(av.last):=substr(t,i,1);\n");
+            sb.Append("putv(substr(t,i,1));\n");
             sb.Append(" end loop;\n");
             sb.Append(" loop\n");
             sb.Append("      x := DBMS_SQL.FETCH_ROWS(h);\n");
             sb.Append("      exit when x = 0;\n");
-            sb.Append("      an.extend; an(an.last):= 1\n;");
+            sb.Append("      putn(1);\n");
             sb.Append("      for i in 1 .. col_cnt loop\n");
             sb.Append("        case substr(t,i,1) \n");
             sb.Append("         when 'D' then\n");
             sb.Append("          DBMS_SQL.COLUMN_VALUE(h, i, dat);\n");
-            sb.Append("          ad.extend; ad(ad.last) := dat;\n");
+            sb.Append("          putd(dat);\n");
             sb.Append("        when 'N' then\n");
             sb.Append("          DBMS_SQL.COLUMN_VALUE(h, i, num);\n");
-            sb.Append("          an.extend; an(an.last) := num;\n");
+            sb.Append("          putn(num);\n");
             sb.Append("        when 'R' then\n");
             sb.Append("          DBMS_SQL.COLUMN_VALUE_raw(h, i, raww);\n");
-            sb.Append("          ar.extend; ar(ar.last) := raww;\n");
+            sb.Append("          putr(raww);\n");
             sb.Append("        when 'V' then\n");
             sb.Append("          DBMS_SQL.COLUMN_VALUE(h, i, varc);\n");
-            sb.Append("          av.extend; av(av.last) := varc;\n");
+            sb.Append("          putv(varc);\n");
             sb.Append("         else raise_application_error(-20000,'BUG: unknown internal type code: '||t);\n");
             sb.Append("         end case;\n");
             sb.Append("      end loop;\n");
             sb.Append("    end loop;\n");
-            sb.Append("      an.extend; an(an.last):= 0\n;");
+            sb.Append("      putn(0);\n");
             sb.Append("end;");
         }
     }
@@ -943,10 +940,10 @@ namespace spinat.dotnetplslmanaged
             sb.Append("if " + source + "%notfound then\n");
             sb.Append("  exit;\n");
             sb.Append("end if;\n");
-            sb.Append("an.extend;an(an.last) := 1;\n");
+            sb.Append("putn(1);\n");
             rectype.genWriteThing(sb, counter, "r");
             sb.Append("end loop;\n");
-            sb.Append("an.extend;an(an.last) := 0;\n");
+            sb.Append("putn(0);\n");
             sb.Append("end;\n");
         }
     }
