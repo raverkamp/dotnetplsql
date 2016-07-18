@@ -632,11 +632,6 @@ namespace spinat.dotnetplslmanaged
                 p.plsqlstatement = createStatementString(p);
             }
 
-            decimal?[] no;
-            string[] vo;
-            DateTime?[] do_;
-            byte[][] ro;
-
             using (OracleCommand cstm = this.connection.CreateCommand())
             {
                 cstm.CommandText = p.plsqlstatement;
@@ -742,6 +737,7 @@ namespace spinat.dotnetplslmanaged
                 }
                 //Debug.WriteLine(cstm.CommandText);
                 cstm.ExecuteNonQuery();
+                ResArrays ra = new ResArrays();
                 {
                     var nc = (Oracle.ManagedDataAccess.Types.OracleRefCursor)cstm.Parameters["P5"].Value;
                     var dr = nc.GetDataReader();
@@ -751,14 +747,13 @@ namespace spinat.dotnetplslmanaged
                         var x = dr.GetOracleDecimal(0);
                         if (x.IsNull)
                         {
-                            l.Add(null);
+                            ra.decimall.Add(null);
                         }
                         else
                         {
-                            l.Add(x.Value);
+                            ra.decimall.Add(x.Value);
                         }
                     }
-                    no = l.ToArray();
                 }
                 {
                     var nv = (Oracle.ManagedDataAccess.Types.OracleRefCursor)cstm.Parameters["P6"].Value;
@@ -769,14 +764,13 @@ namespace spinat.dotnetplslmanaged
                         var x = dr.GetOracleString(0);
                         if (x.IsNull)
                         {
-                            l.Add(null);
-                        }
+                            ra.varchar2.Add(null);
+                        } 
                         else
                         {
-                            l.Add(x.Value);
+                            ra.varchar2.Add(x.Value);
                         }
                     }
-                    vo = l.ToArray();
                 }
                 {
                     var nd = (Oracle.ManagedDataAccess.Types.OracleRefCursor)cstm.Parameters["P7"].Value;
@@ -787,14 +781,13 @@ namespace spinat.dotnetplslmanaged
                         var x = dr.GetOracleDate(0);
                         if (x.IsNull)
                         {
-                            l.Add(null);
+                            ra.date.Add(null);
                         }
                         else
                         {
-                            l.Add(x.Value);
+                            ra.date.Add(x.Value);
                         }
                     }
-                    do_ = l.ToArray();
                 }
                 {
                     var nv = (Oracle.ManagedDataAccess.Types.OracleRefCursor)cstm.Parameters["P8"].Value;
@@ -805,38 +798,19 @@ namespace spinat.dotnetplslmanaged
                         var x = dr.GetOracleBinary(0);
                         if (x.IsNull)
                         {
-                            l.Add(null);
+                            ra.raw.Add(null);
                         }
                         else
                         {
-                            l.Add(x.Value);
+                            ra.raw.Add(x.Value);
                         }
                     }
-                    ro = l.ToArray();
+                   
                 }
-
+                return ra;
             }
-            ResArrays ra = new ResArrays();
-
-            foreach (decimal? d in no)
-            {
-                ra.decimall.Add(d);
-            }
-
-            foreach (string s in vo)
-            {
-                ra.varchar2.Add(s);
-            }
-            foreach (DateTime? dt in do_)
-            {
-                ra.date.Add(dt);
-            }
-            foreach (byte[] b in ro)
-            {
-                ra.raw.Add(b);
-            }
-            return ra;
         }
+
         private Dictionary<String, Object> call(
                Procedure p, Dictionary<String, Object> args)
         {
