@@ -10,11 +10,6 @@ using Oracle.ManagedDataAccess.Types;
 
 namespace spinat.dotnetplslmanaged
 {
-
-
-
-
-
     internal class Counter
     {
         int x = 0;
@@ -23,6 +18,29 @@ namespace spinat.dotnetplslmanaged
             x++;
             return x;
         }
+    }
+
+    // the arguments to a procedure/function
+    internal class Argument
+    {
+        public String name;
+        public String direction;
+        public PLSQLType type;
+    }
+
+    // represents one procedure/function
+    internal class Procedure
+    {
+        // not null if function
+        public PLSQLType returnType;
+        public String original_name;
+        public String owner;
+        public String package_; // could be null
+        public String name;
+        public int overload;
+        public List<Argument> arguments;
+        // used to store the generated pl/sql block
+        public String plsqlstatement = null;
     }
 
     internal class ArgArrays
@@ -262,37 +280,11 @@ namespace spinat.dotnetplslmanaged
             }
         }
 
-        // the arguments to a procedure/function
-        class Argument
-        {
-
-            public String name;
-            public String direction;
-            public PLSQLType type;
-        }
-
-        // represents one procedure/function
-        class Procedure
-        {
-
-            // not null if function
-            public PLSQLType returnType;
-            public String original_name;
-            public String owner;
-            public String package_; // could be null
-            public String name;
-            public int overload;
-            public List<Argument> arguments;
-            // used to store the generated pl/sql block
-            public String plsqlstatement = null;
-        }
-
         // this class corresponds 1:1 the columns in all_arguments, some columns are lft out
         // when working with the data in all_arguments it is transformed into an List
         // of this ArgumentsRow
         class ArgumentsRow
         {
-
             public String owner;
             public String object_name;
             public String package_name;
