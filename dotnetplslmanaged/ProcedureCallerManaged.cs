@@ -554,47 +554,16 @@ namespace spinat.dotnetplslmanaged
                 sb.Append("p" + i + "$ ").Append(p.arguments[i].type.plsqlName());
                 sb.Append(";\n");
             }
+            sb.Append("function getn return number is begin inn:=inn+1; return an_ibt(inn-1);end;\n");
+            sb.Append("function getv return varchar2 is begin inv:=inv+1; return av_ibt(inv-1);end;\n");
+            sb.Append("function getd return date is begin ind:=ind+1; return ad_ibt(ind-1);end;\n");
+            sb.Append("function getr return raw is begin inr:=inr+1; return ar_ibt(inr-1);end;\n");
             sb.Append("begin\n");
 
             sb.Append("an_ibt :=:p1;\n");
-            sb.Append("an := new " + this.numberTableName + "();\n");
-            sb.Append(@"if an_ibt.last > 0 then
-                              for i in an_ibt.first .. an_ibt.last loop
-                                an.extend();
-                                an(i) := an_ibt(i);
-                              end loop;
-                           end if;
-");
-
             sb.Append("av_ibt :=:p2;\n");
-            sb.Append("av := new " + this.varchar2TableName + "();\n");
-            sb.Append(@"if av_ibt.last > 0 then
-                              for i in av_ibt.first .. av_ibt.last loop
-                                av.extend();
-                                av(i) := av_ibt(i);
-                              end loop;
-                           end if;
-");
-
             sb.Append("ad_ibt :=:p3;\n");
-            sb.Append("ad := new " + this.DateTimeTableName + "();\n");
-            sb.Append(@"if ad_ibt.last > 0 then
-                              for i in ad_ibt.first .. ad_ibt.last loop
-                                ad.extend();
-                                ad(i) := ad_ibt(i);
-                              end loop;
-                           end if;
-");
-
             sb.Append("ar_ibt :=:p4;\n");
-            sb.Append("ar := new " + this.rawTableName + "();\n");
-            sb.Append(@"if ar_ibt.last > 0 then
-                              for i in ar_ibt.first .. ar_ibt.last loop
-                                ar.extend();
-                                ar(i) := ar_ibt(i);
-                              end loop;
-                           end if;
-");
 
             Counter counter = new Counter();
             for (int i = 0; i < p.arguments.Count; i++)
