@@ -113,6 +113,7 @@ namespace spinat.dotnetplslmanaged
         public List<String> varchar2 = new List<String>();
         public List<DateTime?> date = new List<DateTime?>();
         public List<byte[]> raw = new List<byte[]>();
+        public Dictionary<String, DataTable> cursorResults = new Dictionary<string, DataTable>();
 
         public int posd = 0;
         public int posv = 0;
@@ -226,22 +227,6 @@ namespace spinat.dotnetplslmanaged
         public void setRawTableName(String DateTimeTableName)
         {
             this.rawTableName = DateTimeTableName;
-        }
-
-        private Boolean returnRefCursorAsDataTable = false;
-
-        public bool ReturnRefCursorAsDataTable
-        {
-            set
-            {
-                this.returnRefCursorAsDataTable = value;
-                this.procsMap.Clear();
-            }
-
-            get
-            {
-                return this.returnRefCursorAsDataTable;
-            }
         }
 
         // determine the type of an index by table
@@ -429,11 +414,11 @@ namespace spinat.dotnetplslmanaged
                 a.Dequeue();
                 if (a.Count == 0 || a.Peek().data_level == 0)
                 {
-                    SysRefCursorType t = new SysRefCursorType(this.returnRefCursorAsDataTable);
+                    SysRefCursorType t = new SysRefCursorType();
                     f.type = t;
                     return f;
                 }
-                TypedRefCursorType tr = new TypedRefCursorType(this.returnRefCursorAsDataTable);
+                TypedRefCursorType tr = new TypedRefCursorType();
                 tr.owner = r.type_owner;
                 tr.package_ = r.type_name;
                 tr.name = r.type_subname;
@@ -599,7 +584,14 @@ namespace spinat.dotnetplslmanaged
                     sb.Append(", ");
                 }
                 sb.Append(" " + p.arguments[i].name + " => ");
-                sb.Append("p" + i + "$");
+                if (p.arguments[i].type is SysRefCursorType || p.arguments[i].type is TypedRefCursorType)
+                {
+                    sb.Append(":c" + i);
+                }
+                else
+                {
+                    sb.Append("p" + i + "$");
+                }
             }
             sb.Append(");\n");
             // after the procedure call
@@ -614,7 +606,11 @@ namespace spinat.dotnetplslmanaged
                 {
                     continue;
                 }
-                a.type.genWriteThing(sb, counter, "p" + i + "$");
+                if (!(p.arguments[i].type is SysRefCursorType || p.arguments[i].type is TypedRefCursorType))
+                {
+                    a.type.genWriteThing(sb, counter, "p" + i + "$");
+                }
+
             }
             sb.Append("open :p5 for select * from table(an);\n");
             sb.Append("open :p6 for select * from table(av);\n");
@@ -705,6 +701,18 @@ namespace spinat.dotnetplslmanaged
                     cstm.Parameters.Add(pa);
                 }
 
+                for (int i = 0; i < p.arguments.Count; i++)
+                {
+                    if (p.arguments[i].type is SysRefCursorType || p.arguments[i].type is TypedRefCursorType)
+                    {
+                        OracleParameter pa = cstm.CreateParameter();
+                        pa.ParameterName = "C" + i;
+                        pa.Direction = ParameterDirection.Output;
+                        pa.OracleDbType = OracleDbType.RefCursor;
+                        cstm.Parameters.Add(pa);
+                    }
+                }
+
                 //---------------------------------------------
                 {
                     OracleParameter pa = cstm.CreateParameter();
@@ -735,9 +743,21 @@ namespace spinat.dotnetplslmanaged
                     pa.OracleDbType = OracleDbType.RefCursor;
                     cstm.Parameters.Add(pa);
                 }
+
                 //Debug.WriteLine(cstm.CommandText);
                 cstm.ExecuteNonQuery();
                 ResArrays ra = new ResArrays();
+                for (int i = 0; i < p.arguments.Count; i++)
+                {
+                    if (p.arguments[i].type is SysRefCursorType || p.arguments[i].type is TypedRefCursorType)
+                    {
+                        var c = (Oracle.ManagedDataAccess.Types.OracleRefCursor)cstm.Parameters["C" + i].Value;
+                        var dr = c.GetDataReader();
+                        var dataTable = new DataTable();
+                        dataTable.Load(dr);
+                        ra.cursorResults[p.arguments[i].name] = dataTable;
+                    }
+                }
                 {
                     var nc = (Oracle.ManagedDataAccess.Types.OracleRefCursor)cstm.Parameters["P5"].Value;
                     var dr = nc.GetDataReader();
@@ -765,7 +785,7 @@ namespace spinat.dotnetplslmanaged
                         if (x.IsNull)
                         {
                             ra.varchar2.Add(null);
-                        } 
+                        }
                         else
                         {
                             ra.varchar2.Add(x.Value);
@@ -805,8 +825,9 @@ namespace spinat.dotnetplslmanaged
                             ra.raw.Add(x.Value);
                         }
                     }
-                   
+
                 }
+                
                 return ra;
             }
         }
@@ -901,7 +922,15 @@ namespace spinat.dotnetplslmanaged
 
                         if (args[i] != null && args[i] is Box)
                         {
-                            Object o = arg.type.readFromResArrays(ra);
+                            Object o;
+                            if (arg.type is SysRefCursorType || arg.type is TypedRefCursorType)
+                            {
+                                o = ra.cursorResults[arg.name];
+                            }
+                            else
+                            {
+                                o = arg.type.readFromResArrays(ra);
+                            }
                             ((Box)args[i]).Value = o;
                         }
                         else

@@ -629,136 +629,14 @@ namespace spinat.dotnetplslmanaged
             return "sys_refcursor";
         }
 
-        private readonly Boolean returnAsDataTable;
-        public SysRefCursorType(Boolean returnAsDataTable)
-        {
-            this.returnAsDataTable = returnAsDataTable;
-        }
-
         public override void fillArgArrays(ArgArrays a, Object o)
         {
             throw new ApplicationException("sys_refcursor may not be an \"IN\" or \"IN OUT\" parameter");
         }
 
-        public DataTable ReadAsDataTable(ResArrays a)
-        {
-            int colcount = (int)a.readDecimal();
-            List<String> colnames = new List<String>();
-            List<String> coltypes = new List<String>();
-            var tab = new DataTable();
-            for (int i = 0; i < colcount; i++)
-            {
-                colnames.Add(a.readString());
-                coltypes.Add(a.readString());
-                var col = new DataColumn();
-                col.ColumnName = colnames[i];
-                String typ = coltypes[i];
-                switch (typ)
-                {
-                    case "N": col.DataType = typeof(Decimal); break;
-                    case "V": col.DataType = typeof(string); break;
-                    case "D": col.DataType = typeof(DateTime); break;
-                    case "R": col.DataType = typeof(byte[]); break;
-                    default: throw new ApplicationException("unknwon column type: " + typ);
-                }
-                tab.Columns.Add(col);
-            }
-            while (true)
-            {
-                if ((int)a.readDecimal() == 0)
-                {
-                    break;
-                }
-                var row = tab.NewRow();
-                for (int i = 0; i < colcount; i++)
-                {
-                    String t = coltypes[i];
-                    Object o;
-                    if (t.Equals("N"))
-                    {
-                        o = a.readDecimal();
-                    }
-                    else if (t.Equals("V"))
-                    {
-                        o = a.readString();
-                    }
-                    else if (t.Equals("D"))
-                    {
-                        o = a.readDateTime();
-                    }
-                    else if (t.Equals("R"))
-                    {
-                        o = a.readRaw();
-                    }
-                    else
-                    {
-                        throw new ApplicationException("unknwon column type: " + t);
-                    }
-                    if (o == null)
-                    {
-                        row[i] = DBNull.Value;
-                    }
-                    else
-                    {
-                        row[i] = o;
-                    }
-                }
-                tab.Rows.Add(row);
-            }
-            return tab;
-        }
-
         public override Object readFromResArrays(ResArrays a)
         {
-            if (this.returnAsDataTable)
-            {
-                return this.ReadAsDataTable(a);
-            }
-            int colcount = (int)a.readDecimal();
-            List<String> colnames = new List<String>();
-            List<String> coltypes = new List<String>();
-            for (int i = 0; i < colcount; i++)
-            {
-                colnames.Add(a.readString());
-                coltypes.Add(a.readString());
-            }
-            List<Dictionary<String, Object>> l = new List<Dictionary<String, Object>>();
-            while (true)
-            {
-                if ((int)a.readDecimal() == 0)
-                {
-                    break;
-                }
-                Dictionary<String, Object> m = new Dictionary<String, Object>();
-                for (int i = 0; i < colcount; i++)
-                {
-                    String t = coltypes[i];
-                    Object o;
-                    if (t.Equals("N"))
-                    {
-                        o = a.readDecimal();
-                    }
-                    else if (t.Equals("V"))
-                    {
-                        o = a.readString();
-                    }
-                    else if (t.Equals("D"))
-                    {
-                        o = a.readDateTime();
-                    }
-                    else if (t.Equals("R"))
-                    {
-                        o = a.readRaw();
-                    }
-                    else
-                    {
-                        throw new ApplicationException("unknwon column type: " + t);
-                    }
-                    m[colnames[i]] = o;
-                }
-                l.Add(m);
-            }
-            return l;
+            throw new ApplicationException("not implmented for ref cursor");
         }
 
         public override void genReadOutThing(StringBuilder sb, Counter counter, String target)
@@ -768,66 +646,7 @@ namespace spinat.dotnetplslmanaged
 
         public override void genWriteThing(StringBuilder sb, Counter counter, String source)
         {
-            // OK Type Codes: dbms_types.TYPECODE_???? is wrong, at least for RAW
-            // so manual check:
-            // 23 raw, 2 number, 1, 96 varchar2, 12 date, 100 binary_float, 101 binary_double
-            sb.Append("declare h integer;\n");
-            sb.Append(" t varchar2(100);\n");
-            sb.Append(" rec_tab   DBMS_SQL.DESC_TAB;\n");
-            sb.Append(" rec       DBMS_SQL.DESC_REC;\n");
-            sb.Append(" x number;\n");
-            sb.Append("num number;\n");
-            sb.Append("dat date;\n");
-            sb.Append("raww raw(32767);\n");
-            sb.Append("varc varchar2(4000);\n");
-            sb.Append(" col_cnt integer;\n");
-            sb.Append("begin\n");
-            sb.Append(" h := DBMS_SQL.TO_CURSOR_NUMBER (" + source + ");\n");
-            sb.Append(" DBMS_SQL.DESCRIBE_COLUMNS(h, col_cnt, rec_tab);\n");
-            sb.Append(" putn(col_cnt);\n");
-            sb.Append(" for i in 1 .. rec_tab.last loop\n");
-            sb.Append("  rec := rec_tab(i);\n");
-            sb.Append("  putv(rec.col_name);\n");
-            sb.Append("if rec.col_type = 12 then\n");
-            sb.Append("        dbms_sql.define_column(h, i, dat);\n");
-            sb.Append(" t:=t||'D';\n");
-            sb.Append("elsif rec.col_type = 2 then\n");
-            sb.Append("        dbms_sql.define_column(h, i, num);\n");
-            sb.Append(" t:=t||'N';\n");
-            sb.Append("elsif rec.col_type = 23  then\n");
-            sb.Append("        dbms_sql.define_column_raw(h, i, raww,32767);\n");
-            sb.Append(" t:=t||'R';\n");
-            sb.Append("elsif rec.col_type in(1,96)  then\n");
-            sb.Append("        dbms_sql.define_column(h, i, varc, 4000);\n");
-            sb.Append(" t:=t||'V';\n");
-            sb.Append(" else raise_application_error(-20000,'unknown type code for column '|| rec.col_name ||': '|| rec.col_type);");
-            sb.Append("end if;");
-            sb.Append("putv(substr(t,i,1));\n");
-            sb.Append(" end loop;\n");
-            sb.Append(" loop\n");
-            sb.Append("      x := DBMS_SQL.FETCH_ROWS(h);\n");
-            sb.Append("      exit when x = 0;\n");
-            sb.Append("      putn(1);\n");
-            sb.Append("      for i in 1 .. col_cnt loop\n");
-            sb.Append("        case substr(t,i,1) \n");
-            sb.Append("         when 'D' then\n");
-            sb.Append("          DBMS_SQL.COLUMN_VALUE(h, i, dat);\n");
-            sb.Append("          putd(dat);\n");
-            sb.Append("        when 'N' then\n");
-            sb.Append("          DBMS_SQL.COLUMN_VALUE(h, i, num);\n");
-            sb.Append("          putn(num);\n");
-            sb.Append("        when 'R' then\n");
-            sb.Append("          DBMS_SQL.COLUMN_VALUE_raw(h, i, raww);\n");
-            sb.Append("          putr(raww);\n");
-            sb.Append("        when 'V' then\n");
-            sb.Append("          DBMS_SQL.COLUMN_VALUE(h, i, varc);\n");
-            sb.Append("          putv(varc);\n");
-            sb.Append("         else raise_application_error(-20000,'BUG: unknown internal type code: '||t);\n");
-            sb.Append("         end case;\n");
-            sb.Append("      end loop;\n");
-            sb.Append("    end loop;\n");
-            sb.Append("      putn(0);\n");
-            sb.Append("end;");
+            throw new ApplicationException("not implmented for ref cursor");
         }
     }
 
@@ -837,13 +656,6 @@ namespace spinat.dotnetplslmanaged
         public String package_;
         public String name;
         public RecordType rectype;
-
-        private readonly bool returnAsDataTable;
-
-        public TypedRefCursorType(bool returnAsDataTable)
-        {
-            this.returnAsDataTable = returnAsDataTable;
-        }
 
         public override String plsqlName()
         {
@@ -855,72 +667,10 @@ namespace spinat.dotnetplslmanaged
             throw new ApplicationException("ref cursor may not be an \"IN\" or \"IN OUT\" parameter");
         }
 
-        private DataTable readAsDataTableFromResArray(ResArrays a)
-        {
-            var tab = new DataTable();
-            foreach (Field f in this.rectype.fields)
-            {
-                var col = new DataColumn(f.name);
-                if (f.type is Varchar2Type)
-                {
-                    col.DataType = typeof(string);
-                }
-                else if (f.type is RawType)
-                {
-                    col.DataType = typeof(byte[]);
-                }
-                else if (f.type is NamedType)
-                {
-                    var nt = (NamedType)f.type;
-                    if (nt.name.Equals("NUMBER") || nt.name.Equals("INTEGER") || nt.name.Equals("BINARY_INTEGER"))
-                    {
-                        col.DataType = typeof(decimal);
-                    }
-                    else if (nt.name.Equals("DATE"))
-                    {
-                        col.DataType = typeof(DateTime);
-                    }
-                    else
-                    {
-                        throw new ApplicationException("no support for column type in DataTable: " + f);
-                    }
-                }
-                else
-                {
-                    throw new ApplicationException("no support for column type in DataTable: " + f);
-                }
-                tab.Columns.Add(col);
-            }
-            while (true)
-            {
-                if ((int)a.readDecimal() == 0)
-                {
-                    break;
-                }
-                var row = tab.NewRow();
-                rectype.readFromResArraysIntoDataRow(a, row);
-                tab.Rows.Add(row);
-            }
-            return tab;
-        }
-
+  
         public override Object readFromResArrays(ResArrays a)
         {
-            if (this.returnAsDataTable)
-            {
-                return this.readAsDataTableFromResArray(a);
-            }
-            List<Dictionary<String, Object>> l = new List<Dictionary<String, Object>>();
-            while (true)
-            {
-                if ((int)a.readDecimal() == 0)
-                {
-                    break;
-                }
-                Dictionary<String, Object> m = (Dictionary<String, Object>)rectype.readFromResArrays(a);
-                l.Add(m);
-            }
-            return l;
+            throw new ApplicationException("not implmented for ref cursor");
         }
 
 
@@ -932,19 +682,7 @@ namespace spinat.dotnetplslmanaged
 
         public override void genWriteThing(StringBuilder sb, Counter counter, String source)
         {
-            sb.Append("declare r " + rectype.plsqlName() + ";\n");
-            sb.Append("x integer;\n");
-            sb.Append("begin\n");
-            sb.Append("loop\n");
-            sb.Append(" fetch " + source + " into r;\n");
-            sb.Append("if " + source + "%notfound then\n");
-            sb.Append("  exit;\n");
-            sb.Append("end if;\n");
-            sb.Append("putn(1);\n");
-            rectype.genWriteThing(sb, counter, "r");
-            sb.Append("end loop;\n");
-            sb.Append("putn(0);\n");
-            sb.Append("end;\n");
+            throw new ApplicationException("not implmented for ref cursor");
         }
     }
 }

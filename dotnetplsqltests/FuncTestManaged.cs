@@ -351,27 +351,10 @@ namespace spinat.dotnetplsqltests
 
 
         [Test]
-        public void TestSysRefCursor()
-        {
-            ProcedureCaller p = new ProcedureCaller(connection);
-            Box b = new Box();
-            var dat = new DateTime(2001, 12, 1);
-            var bytes = new byte[] { 1, 2, 0, 4, 5, 255 };
-            p.CallPositional("p1.pcursor1", 17, "xyz", dat, bytes, b);
-            var l = (List<Dictionary<String, Object>>)b.Value;
-            Assert.AreEqual(l.Count, 2);
-            var r2 = l[1];
-            Assert.AreEqual(r2["A"], "xyz");
-            Assert.AreEqual(r2["B"], new decimal(17));
-            Assert.AreEqual(r2["C"], dat);
-            Assert.AreEqual(r2["D"], bytes);
-
-        }
-        [Test]
         public void TestSysRefCursorAsDataTable()
         {
             ProcedureCaller p = new ProcedureCaller(connection);
-            p.ReturnRefCursorAsDataTable = true;
+            
             Box b = new Box();
             var dat = new DateTime(2001, 12, 1);
             var bytes = new byte[] { 1, 0, 55, 4, 5 };
@@ -385,28 +368,12 @@ namespace spinat.dotnetplsqltests
             Assert.AreEqual(r2["D"], bytes);
         }
 
-        [Test]
-        public void TestRefCursor()
-        {
-            ProcedureCaller p = new ProcedureCaller(connection);
-            Box b = new Box();
-            DateTime dat = new DateTime(2001, 12, 1);
-            var bytes = new byte[] { 1, 0, 55, 4, 5 };
-            p.CallPositional("p1.pcursor2", 17, "xyz", dat, bytes, b);
-            var l = (List<Dictionary<String, Object>>)b.Value;
-            Assert.AreEqual(l.Count, 2);
-            var r2 = l[1];
-            Assert.AreEqual(r2["V"], "xyz");
-            Assert.AreEqual(r2["N"], new Decimal(17));
-            Assert.AreEqual(r2["D"], dat);
-            Assert.AreEqual(r2["R"], bytes);
-        }
+       
 
         [Test]
         public void TestRefCursorAsDataTable()
         {
             ProcedureCaller p = new ProcedureCaller(connection);
-            p.ReturnRefCursorAsDataTable = true;
             Box b = new Box();
             DateTime dat = new DateTime(2001, 12, 1);
             var bytes = new byte[] { 1, 0, 55, 4, 5 };
@@ -444,7 +411,6 @@ namespace spinat.dotnetplsqltests
         public void TestRefCursor4()
         {
             var p = new ProcedureCaller(connection);
-            p.ReturnRefCursorAsDataTable = true;
             var b = new Box();
             p.CallPositional("p1.exec_query", "select to_number(null) as a,'' as b, to_date(null) as c, hextoraw('') as d from dual", b);
             var t = (DataTable)b.Value;
@@ -456,7 +422,6 @@ namespace spinat.dotnetplsqltests
         public void TestRefCursor5()
         {
             var p = new ProcedureCaller(connection);
-            p.ReturnRefCursorAsDataTable = true;
             var b = new Box();
             p.CallPositional("p1.exec_query", "select hextoraw('0a0b00ff') as a from dual", b);
             var t = (DataTable)b.Value;

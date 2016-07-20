@@ -67,9 +67,9 @@ namespace spinat.dotnetplsqltests
         {
             var x = new FuncTestManaged();
             x.setUp();
-            x.TestSysRefCursor();
+          
             x.TestRefCursor4();
-            x.TestRefCursor();
+           
            
         }
     }
