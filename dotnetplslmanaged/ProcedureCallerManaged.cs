@@ -26,6 +26,7 @@ namespace spinat.dotnetplslmanaged
         public String name;
         public String direction;
         public PLSQLType type;
+        public bool isCursorType;
     }
 
     // represents one procedure/function
@@ -503,6 +504,7 @@ namespace spinat.dotnetplslmanaged
                 ar.direction = io;
                 ar.name = f.name;
                 ar.type = f.type;
+                ar.isCursorType = f.type is SysRefCursorType || f.type is TypedRefCursorType;
                 p.arguments.Add(ar);
             }
             return p;
@@ -565,6 +567,10 @@ namespace spinat.dotnetplslmanaged
                 }
                 a.type.genReadOutThing(sb, counter, "p" + i + "$");
             }
+
+            // note the order of bind variables: in and in/out parameters, ref cursors, ref cursor to return the
+            // array data
+
             // at this point the parameters have been filled, clear the
             // parameter arrays
             sb.Append("an:= " + this.numberTableName + "();\n");
@@ -584,9 +590,9 @@ namespace spinat.dotnetplslmanaged
                     sb.Append(", ");
                 }
                 sb.Append(" " + p.arguments[i].name + " => ");
-                if (p.arguments[i].type is SysRefCursorType || p.arguments[i].type is TypedRefCursorType)
+                if (p.arguments[i].isCursorType)
                 {
-                    sb.Append(":c" + i);
+                    sb.Append(":C" + i);
                 }
                 else
                 {
@@ -606,7 +612,7 @@ namespace spinat.dotnetplslmanaged
                 {
                     continue;
                 }
-                if (!(p.arguments[i].type is SysRefCursorType || p.arguments[i].type is TypedRefCursorType))
+                if (!(p.arguments[i].isCursorType))
                 {
                     a.type.genWriteThing(sb, counter, "p" + i + "$");
                 }
@@ -703,7 +709,7 @@ namespace spinat.dotnetplslmanaged
 
                 for (int i = 0; i < p.arguments.Count; i++)
                 {
-                    if (p.arguments[i].type is SysRefCursorType || p.arguments[i].type is TypedRefCursorType)
+                    if (p.arguments[i].isCursorType)
                     {
                         OracleParameter pa = cstm.CreateParameter();
                         pa.ParameterName = "C" + i;
@@ -749,7 +755,7 @@ namespace spinat.dotnetplslmanaged
                 ResArrays ra = new ResArrays();
                 for (int i = 0; i < p.arguments.Count; i++)
                 {
-                    if (p.arguments[i].type is SysRefCursorType || p.arguments[i].type is TypedRefCursorType)
+                    if (p.arguments[i].isCursorType)
                     {
                         var c = (Oracle.ManagedDataAccess.Types.OracleRefCursor)cstm.Parameters["C" + i].Value;
                         var dr = c.GetDataReader();
@@ -923,7 +929,7 @@ namespace spinat.dotnetplslmanaged
                         if (args[i] != null && args[i] is Box)
                         {
                             Object o;
-                            if (arg.type is SysRefCursorType || arg.type is TypedRefCursorType)
+                            if (arg.isCursorType)
                             {
                                 o = ra.cursorResults[arg.name];
                             }
