@@ -67,7 +67,7 @@ namespace spinat.dotnetplslmanaged
             }
             else if (this.name.Equals("PL/SQL BOOLEAN"))
             {
-                if (o == null)
+                if (o == null|| DBNull.Value == o)
                 {
                     a.addNumber(null);
                 }
@@ -80,7 +80,14 @@ namespace spinat.dotnetplslmanaged
             }
             else if (this.name.Equals("DATE"))
             {
-                a.addDateTime((DateTime?)o);
+                if (o == null || DBNull.Value == o)
+                {
+                    a.addDateTime(null);
+                }
+                else
+                {
+                    a.addDateTime((DateTime?)o);
+                }
             }
             else
             {
@@ -185,13 +192,14 @@ namespace spinat.dotnetplslmanaged
 
         public override void fillArgArrays(ArgArrays a, Object o)
         {
-            String s = (String)o;
-            if (s == null)
+            
+            if (o == null|| DBNull.Value == o)
             {
-                a.addString(s);
+                a.addString(null);
             }
             else
             {
+                String s = (String)o;
                 int allowed_size = this.size == 0 ? 32767 : this.size;
                 if (s.Length <= allowed_size)
                 {
@@ -241,13 +249,14 @@ namespace spinat.dotnetplslmanaged
 
         public override void fillArgArrays(ArgArrays a, Object o)
         {
-            byte[] b = (byte[])o;
-            if (b == null)
+         
+            if (o == null||DBNull.Value == o)
             {
-                a.addRaw(b);
+                a.addRaw(null);
             }
             else
             {
+                byte[] b = (byte[])o;
                 int allowed_size = this.size == 0 ? 32767 : this.size;
                 if (b.Length <= allowed_size)
                 {
@@ -376,7 +385,23 @@ namespace spinat.dotnetplslmanaged
             {
                 a.addNumber((decimal?)null);
             }
-            else
+            else if (o is DataTable)
+            {
+                if (!(this.slottype is RecordType)) 
+                {
+                    throw new ApplicationException("if datatable is given for array then array slotype must be record type");
+                }
+                var rt = (RecordType) this.slottype;
+                var tab = (DataTable)o;
+                a.addNumber(tab.Rows.Count);
+                foreach (DataRow r in tab.Rows)
+                {
+                    foreach(Field f in rt.fields) {
+                        f.type.fillArgArrays(a, r[f.name]);
+                    }
+                }
+            } 
+            else 
             {
                 System.Collections.IList l = (System.Collections.IList)o;
                 a.addNumber(l.Count);

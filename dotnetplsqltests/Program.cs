@@ -9,7 +9,7 @@ namespace spinat.dotnetplsqltests
         public static void Main(string[] args)
         {
             Console.WriteLine("Los gehts!");
-            SysRefCursorTests();
+            TableTest();
             
             Console.Write("Press any key to continue . . . ");
             Console.ReadKey(true);
@@ -61,6 +61,13 @@ namespace spinat.dotnetplsqltests
             x.setUp();
             x.TestOutput();
             x.TestOutputBig();
+        }
+
+        static void TableTest()
+        {
+            var x = new FuncTestManaged();
+            x.setUp();
+            x.test3WithTableBase(20);
         }
 
         static void SysRefCursorTests()

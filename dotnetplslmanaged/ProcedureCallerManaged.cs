@@ -54,7 +54,7 @@ namespace spinat.dotnetplslmanaged
 
         public void addNumber(Object n)
         {
-            if (n == null)
+            if (n == null||DBNull.Value == n)
             {
                 this.decimall.Add(null);
             }

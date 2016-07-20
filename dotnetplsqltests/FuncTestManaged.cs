@@ -141,6 +141,36 @@ namespace spinat.dotnetplsqltests
             test3Base(10);
         }
 
+
+        public void test3WithTableBase(int size)
+        {
+            Dictionary<String, Object> ar = new Dictionary<String, Object>();
+            List<Dictionary<String, Object>> l = new List<Dictionary<String, Object>>();
+            DataTable t = new DataTable();
+            t.Columns.Add(new DataColumn("X", typeof(decimal)));
+            t.Columns.Add(new DataColumn("Y", typeof(string)));
+            t.Columns.Add(new DataColumn("Z", typeof(DateTime)));
+
+            for (int i = 0; i < size; i++)
+            {
+                var a = t.NewRow();
+                a["X"] = new Decimal(i);
+                a["Y"] = "x" + i;
+                a["Z"] = DateTime.Now;
+                t.Rows.Add(a);
+            }
+            ar["A"] = t;
+            Dictionary<String, Object> res = new ProcedureCaller(connection).Call("P1.P3", ar);
+            var l2 = (System.Collections.IList)res["B"];
+            for (int i = 0; i < l.Count; i++)
+            {
+                Dictionary<String, Object> m = l[i];
+                Dictionary<String, Object> m2 = (Dictionary<String, Object>)l2[i];
+                Assert.True(m2["X"].Equals(((Decimal)m["X"]) + new Decimal(1)));
+                Assert.True(m2["Y"].Equals("" + m["Y"] + m["Y"]));
+            }
+        }
+
         [Test]
         public void test4()
         {
