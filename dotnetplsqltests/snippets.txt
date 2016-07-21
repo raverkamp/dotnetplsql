@@ -5,7 +5,6 @@ procedure p(xi number,yi varchar2,zi date,xo out number,yo out varchar2,zo out d
 
 type r1 is record (x number, y varchar2(200), z date);
 
-
 procedure p2(a r1, b out r1);
 
 type t1 is table of r1;
@@ -62,6 +61,11 @@ procedure praw(x in raw,sizee integer,y out raw);
 procedure pvarchar2(x in varchar2,sizee integer,y out varchar2);
 
 procedure varchar2_out(x out varchar2);
+
+type bigrec is record (num number,int integer,v1 varchar2(2000 char),b boolean, d date, r raw(2000));
+type tab_bigrec is table of bigrec;
+
+procedure bigrectest(rein tab_bigrec,raus out tab_bigrec);
 
 end;
 ## p1_body
@@ -226,6 +230,22 @@ begin
   x := chr(0)||'roland';
 end;
 
+procedure bigrectest(rein tab_bigrec,raus out tab_bigrec) is
+x tab_bigrec;
+begin
+  if rein is null or rein.last is null then
+    raus:= rein;
+	return;
+  end if;
+  x := new tab_bigrec();
+  for i in rein.first .. rein.last loop
+    x.extend;
+	x(x.last) := rein(rein.last+1-i);
+  end loop;
+  raus := x;
+end;
+
+
 end;
 ## proc1
 create or replace procedure proc1( x integer,y varchar2,z date) as
@@ -260,5 +280,4 @@ procedure p1(a in varchar2,txt out varchar2) is
 begin
   txt := '3/'||a;
 end;
-
 end;

@@ -393,6 +393,10 @@ namespace spinat.dotnetplslmanaged
                 }
                 var rt = (RecordType) this.slottype;
                 var tab = (DataTable)o;
+                if (rt.fields.Count != tab.Columns.Count)
+                {
+                    throw new ApplicationException("column count for argumnet table and type do not match.");
+                }
                 a.addNumber(tab.Rows.Count);
                 foreach (DataRow r in tab.Rows)
                 {

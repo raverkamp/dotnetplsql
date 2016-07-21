@@ -384,7 +384,7 @@ namespace spinat.dotnetplsqltests
         public void TestSysRefCursorAsDataTable()
         {
             ProcedureCaller p = new ProcedureCaller(connection);
-            
+
             Box b = new Box();
             var dat = new DateTime(2001, 12, 1);
             var bytes = new byte[] { 1, 0, 55, 4, 5 };
@@ -398,7 +398,7 @@ namespace spinat.dotnetplsqltests
             Assert.AreEqual(r2["D"], bytes);
         }
 
-       
+
 
         [Test]
         public void TestRefCursorAsDataTable()
@@ -624,6 +624,143 @@ namespace spinat.dotnetplsqltests
             // and the oci code cuts this off c strings?
             // we are using managed, so everything is correct
             Assert.AreEqual("\0roland", (string)box.Value);
+        }
+        
+        static bool IsNumericType(object o)
+        {
+            switch (Type.GetTypeCode(o.GetType()))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        
+        static bool same(object o1, object o2)
+        {
+            if (o1 == null || o1 == DBNull.Value)
+            {
+                if (o2 == null || o2 == DBNull.Value)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if (o2 == null || o2 == DBNull.Value)
+            {
+                return false;
+            }
+            if (o1.Equals(o2))
+            {
+                return true;
+            }
+
+
+            if (IsNumericType(o1) && IsNumericType(o2))
+            {
+                var n1 = Convert.ToDecimal(o1);
+                var n2 = Convert.ToDecimal(o2);
+                return n1.Equals(n2);
+            }
+            if (o1 is byte[] && o2 is byte[])
+            {
+                var b1 = (byte[])o1;
+                var b2 = (byte[])o2;
+                if (b1.Length != b2.Length)
+                {
+                    return false;
+                }
+                for (int i = 0; i < b1.Length; i++)
+                {
+                    if (b1[i] != b2[i])
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        static void AssertSame(DataRow r, Dictionary<String, Object> d)
+        {
+            var t = r.Table;
+            Assert.AreEqual(t.Columns.Count, d.Count);
+            foreach (String s in d.Keys)
+            {
+                Assert.True(same(r[s], d[s]));
+            }
+        }
+
+        static void AssertSame(DataTable t, List<Object> l)
+        {
+            if (t == null && l == null)
+            {
+                return;
+            }
+            Assert.AreEqual(l.Count, t.Rows.Count);
+            for (int i = 0; i < l.Count; i++)
+            {
+                AssertSame(t.Rows[i], (Dictionary<String, Object>)l[i]);
+            }
+        }
+        
+        [Test]
+        public void Bigrectest()
+        {
+            // type bigrec is record (num number,int integer,v1 varchar2(2000 char),
+            //                        b boolean, d date, r raw(2000));
+
+            ProcedureCaller p = new ProcedureCaller(connection);
+            var tab = new DataTable();
+            tab.Columns.Add(new DataColumn("NUM", typeof(decimal)));
+            tab.Columns.Add(new DataColumn("INT", typeof(Int32)));
+            tab.Columns.Add(new DataColumn("V1", typeof(String)));
+            tab.Columns.Add(new DataColumn("B", typeof(bool)));
+            tab.Columns.Add(new DataColumn("D", typeof(DateTime)));
+            tab.Columns.Add(new DataColumn("R", typeof(byte[])));
+            var b = new Box();
+
+            p.CallPositional("p1.bigrectest", null, b);
+            Assert.IsNull(b.Value);
+
+            p.CallPositional("p1.bigrectest", tab, b);
+            var l = (List<Object>)b.Value;
+            AssertSame(tab, l);
+
+            tab.Rows.Add(tab.NewRow());
+            p.CallPositional("p1.bigrectest", tab, b);
+            l = (List<Object>)b.Value;
+            l.Reverse();
+            AssertSame(tab, l);
+            var date = DateTime.Now;
+            date = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
+            tab.Rows.Add(1, 1, "a", true, date, new byte[] { 1 });
+            p.CallPositional("p1.bigrectest", tab, b);
+            l = (List<Object>)b.Value;
+            l.Reverse();
+            AssertSame(tab, l);
+
+            date = new DateTime(2013, 3, 4, 4, 5, 1);
+            tab.Rows.Add(1.126356, -1, "a", null, date, new byte[2000] );
+            p.CallPositional("p1.bigrectest", tab, b);
+            l = (List<Object>)b.Value;
+            l.Reverse();
+            AssertSame(tab, l);
         }
     }
 }
