@@ -62,7 +62,7 @@ procedure pvarchar2(x in varchar2,sizee integer,y out varchar2);
 
 procedure varchar2_out(x out varchar2);
 
-type bigrec is record (num number,int integer,v1 varchar2(2000 char),b boolean, d date, r raw(2000));
+type bigrec is record (num number,int integer,v1 varchar2(2000 char),b boolean, d date, r raw(32767));
 type tab_bigrec is table of bigrec;
 
 procedure bigrectest(rein tab_bigrec,raus out tab_bigrec);

@@ -761,6 +761,21 @@ namespace spinat.dotnetplsqltests
             l = (List<Object>)b.Value;
             l.Reverse();
             AssertSame(tab, l);
+
+            for (int i = 0; i < 1000; i++)
+            {
+                var by = new byte[i + 31000];
+                for (int j = 0; j < by.Length; j++)
+                {
+                    by[j] = (byte)(i * 7 & 255);
+                }
+                var d = new decimal(i * 2000 + Math.Sin(i));
+                tab.Rows.Add(d, i*20001, "a", false, date, by);
+            }
+            p.CallPositional("p1.bigrectest", tab, b);
+            l = (List<Object>)b.Value;
+            l.Reverse();
+            AssertSame(tab, l);
         }
     }
 }
